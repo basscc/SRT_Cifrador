@@ -26,15 +26,17 @@ public class Interface extends JFrame {
 	 */
 	private static final long serialVersionUID = -6163772603012575756L;
 
-	private static final Dimension MIN_SIZE = new Dimension(320, 300);
-	private static final Dimension DEFAULT_SIZE = new Dimension(640, 440);
+	private static final Dimension MIN_SIZE = new Dimension(320, 360);
+	private static final Dimension DEFAULT_SIZE = new Dimension(640, 500);
 
 	private JLabel rootLabel;
 	private JLabel algoryLabel;
 	private JLabel inFileLabel;
 	private JLabel outFileLabel;
 	private JLabel statusLabel;
+	private JLabel pwLabel;
 	private JTextField rootTextField;
+	private JTextField passwordTextField;
 	private JComboBox<String> algoryComboBox;
 	private JButton rootButton;
 	private JButton acceptButton;
@@ -44,6 +46,7 @@ public class Interface extends JFrame {
 	private JTextArea cipherFileArea;
 
 	private File rootPath;
+	private String password;
 
 	public Interface() {
 		initComponents();
@@ -53,15 +56,18 @@ public class Interface extends JFrame {
 
 	private void initComponents() {
 
-		String[] algorythms = { "SHA", "AES", "DES", "3DES" };
+		String[] algorythms = { "AES", "DES", "3DES" };
 
 		rootLabel = new JLabel();
 		algoryLabel = new JLabel();
 		inFileLabel = new JLabel();
 		outFileLabel = new JLabel();
 		statusLabel = new JLabel();
+		pwLabel = new JLabel();
 
 		rootTextField = new JTextField();
+		passwordTextField = new JTextField();
+
 		algoryComboBox = new JComboBox<String>(algorythms);
 
 		rootButton = new JButton();
@@ -78,6 +84,7 @@ public class Interface extends JFrame {
 		outFileLabel.setText("Resultado del cifrado");
 		rootButton.setText("…");
 		acceptButton.setText("Aceptar");
+		pwLabel.setText("Contraseña: ");
 
 		rootTextField.setEditable(false);
 		algoryComboBox.setEditable(false);
@@ -108,6 +115,8 @@ public class Interface extends JFrame {
 						.addGroup(layout.createSequentialGroup().addComponent(algoryLabel)
 								.addPreferredGap(ComponentPlacement.RELATED).addComponent(algoryComboBox)
 								.addPreferredGap(ComponentPlacement.RELATED).addComponent(acceptButton))
+						.addGroup(layout.createSequentialGroup().addComponent(pwLabel)
+								.addPreferredGap(ComponentPlacement.RELATED).addComponent(passwordTextField))
 						.addComponent(inFileLabel).addComponent(filePane).addComponent(outFileLabel)
 						.addComponent(resultsPane).addComponent(statusLabel))
 				.addContainerGap());
@@ -117,6 +126,8 @@ public class Interface extends JFrame {
 						.addComponent(rootButton))
 				.addPreferredGap(ComponentPlacement.RELATED)
 				.addGroup(layout.createParallelGroup().addComponent(algoryLabel).addComponent(algoryComboBox))
+				.addPreferredGap(ComponentPlacement.RELATED)
+				.addGroup(layout.createParallelGroup().addComponent(pwLabel).addComponent(passwordTextField))
 				.addPreferredGap(ComponentPlacement.RELATED).addComponent(inFileLabel)
 				.addPreferredGap(ComponentPlacement.RELATED).addComponent(filePane)
 				.addPreferredGap(ComponentPlacement.RELATED).addComponent(outFileLabel)
@@ -124,7 +135,7 @@ public class Interface extends JFrame {
 				.addPreferredGap(ComponentPlacement.RELATED).addComponent(acceptButton)
 				.addPreferredGap(ComponentPlacement.RELATED).addComponent(statusLabel).addContainerGap());
 
-		layout.linkSize(SwingConstants.HORIZONTAL, rootLabel, algoryLabel);
+		layout.linkSize(SwingConstants.HORIZONTAL, rootLabel, algoryLabel, pwLabel);
 	}
 
 	private void finishGui() {
@@ -164,10 +175,18 @@ public class Interface extends JFrame {
 	private void startEncryption(ActionEvent event) {
 
 		if (rootPath != null) {
-			statusLabel.setText("Cifrando con algoritmo : " + algoryComboBox.getSelectedItem().toString());
-			// algoryComboBox.getSelectedIndex();
+			if (passwordTextField.getText() != null) {
+				statusLabel.setText("Cifrando con algoritmo : " + algoryComboBox.getSelectedItem().toString());
+				Cypher.cipherFile(rootPath, algoryComboBox.getSelectedItem().toString(), passwordTextField.getText());
+				// algoryComboBox.getSelectedIndex();
+				statusLabel.setText("Fichero cifrado correctamente. ");
+				//TODO: mostrar mensaje de fichero cifrado correctamente ventana emergente con boton aceptar
+				//TODO: menu elegir cifrar descifrar
+			} else {
+				statusLabel.setText("ERROR : No se ha insertado ninguna contraseña. ");
+			}
 		} else {
-			statusLabel.setText("ERROR : No se ha seleccionado ningún fichero");
+			statusLabel.setText("ERROR : No se ha seleccionado ningún fichero. ");
 		}
 	}
 
