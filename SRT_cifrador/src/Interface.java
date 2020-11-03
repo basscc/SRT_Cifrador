@@ -41,6 +41,9 @@ public class Interface extends JFrame {
 	private JComboBox<String> algoryComboBox;
 	private JButton rootButton;
 	private JButton acceptButton;
+	
+	private JButton decipButton;
+	
 	private JScrollPane filePane;
 	private JScrollPane resultsPane;
 	private JTextArea previewFileArea;
@@ -59,7 +62,7 @@ public class Interface extends JFrame {
 	 */
 	private void initComponents() {
 
-		String[] algorythms = { "AES", "DES", "3DES" };
+		String[] algorythms = { "SHA", "DES", "3DES" };
 		cypher = new Cypher();
 
 		rootLabel = new JLabel();
@@ -76,6 +79,7 @@ public class Interface extends JFrame {
 
 		rootButton = new JButton();
 		acceptButton = new JButton();
+		decipButton = new JButton();
 
 		previewFileArea = new JTextArea(6, 50);
 		cipherFileArea = new JTextArea(6, 50);
@@ -88,6 +92,7 @@ public class Interface extends JFrame {
 		outFileLabel.setText("Resultado del cifrado");
 		rootButton.setText("…");
 		acceptButton.setText("Aceptar");
+		decipButton.setText("Desencriptar");
 		pwLabel.setText("Contraseña:");
 
 		rootTextField.setEditable(false);
@@ -108,6 +113,7 @@ public class Interface extends JFrame {
 		});
 
 		acceptButton.addActionListener(this::startEncryption);
+		decipButton.addActionListener(this::startDecryption);
 	}
 
 	/*
@@ -129,7 +135,8 @@ public class Interface extends JFrame {
 						.addGroup(layout.createSequentialGroup().addComponent(pwLabel)
 								.addPreferredGap(ComponentPlacement.RELATED).addComponent(passwordField))
 						.addComponent(inFileLabel).addComponent(filePane).addComponent(outFileLabel)
-						.addComponent(resultsPane).addComponent(statusLabel))
+						.addComponent(resultsPane).addComponent(statusLabel)
+						.addComponent(decipButton))
 				.addContainerGap());
 
 		// Vertical groups
@@ -145,6 +152,7 @@ public class Interface extends JFrame {
 				.addPreferredGap(ComponentPlacement.RELATED).addComponent(outFileLabel)
 				.addPreferredGap(ComponentPlacement.RELATED).addComponent(resultsPane)
 				.addPreferredGap(ComponentPlacement.RELATED).addComponent(acceptButton)
+				.addPreferredGap(ComponentPlacement.RELATED).addComponent(decipButton)
 				.addPreferredGap(ComponentPlacement.RELATED).addComponent(statusLabel).addContainerGap());
 
 		// Link size of labels
@@ -238,6 +246,28 @@ public class Interface extends JFrame {
 			updateStatus("ERROR : No se ha seleccionado ningún fichero.");
 		}
 	}
+	
+	private void startDecryption(ActionEvent event) {
+
+		if (rootPath != null) {
+			if (passwordField.getPassword().length != 0) {
+				updateStatus("Descifrando archivo");
+
+				try {
+					cypher.decipherFile(rootPath, String.valueOf(passwordField.getPassword()));
+					//previewEncryption();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
+				statusLabel.setText("Fichero descifrado correctamente.");
+			} else {
+				updateStatus("ERROR : No se ha insertado ninguna contraseña.");
+			}
+		} else {
+			updateStatus("ERROR : No se ha seleccionado ningún fichero.");
+		}
+	}
 
 	/*
 	 * Method to translate the drop down list into the exact algorithm name for
@@ -250,7 +280,7 @@ public class Interface extends JFrame {
 		switch (op) {
 
 		case 0:
-			chosen = "PBEWithMD5AndAES";
+			chosen = "PBEWithSHA1AndDESede";
 			break;
 
 		case 1:
@@ -258,7 +288,7 @@ public class Interface extends JFrame {
 			break;
 
 		case 2:
-			chosen = "PBEWithMD5AndDESede";
+			chosen = "PBEWithMD5AndTripleDES";
 			break;
 
 		default:
