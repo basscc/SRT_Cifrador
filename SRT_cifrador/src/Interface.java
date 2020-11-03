@@ -280,6 +280,7 @@ public class Interface extends JFrame {
 
 	public static void main(String[] args) {
 		java.awt.EventQueue.invokeLater(Interface::new); // Call EventQueue on the UI to avoid freezes
+		decipherFile( "C:\\Users\\javipiti\\Desktop\\pruebaaa.txt.cif",  "asd");
 	}
 
 }

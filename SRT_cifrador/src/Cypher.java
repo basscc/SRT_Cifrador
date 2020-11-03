@@ -1,3 +1,4 @@
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -31,7 +32,7 @@ public class Cypher {
 	 * 
 	 */
 	
-	private int itCount;
+	private static int itCount;
 
 	public Cypher() {
 
@@ -81,22 +82,34 @@ public class Cypher {
 		fileOUT.close();
 	}
 
-	public void decipherFile(File fichero, String pw) throws Exception {
-		
-		// Get the stream of the IN file
-		InputStream ficheroEntrada = new FileInputStream(fichero);
+	public static void decipherFile() throws Exception {
+		//esto no sirve para absolutamente nada porque luego en el inputstream
+		// te da outofbounds si dejas solo "f" y si pones "f.getName" te dice que 
+		// no encuentra el fichero, asi que he metido el fichero en las carpetas del proyecto
+		// y ahi si lo encuentra 
+		File f = new File("C:\\Users\\javipiti\\Desktop\\pruebaaa.txt.cif");
+		String pw = "asd";
+		System.out.println(f.getName());
 
+		// Get the stream of the IN file
+		InputStream ficheroEntrada = new FileInputStream(f.getName());
+
+		//aqui me daba error y esto lo he sacado de lo de estas tias, no se muy bien
+		// que hace
+		ByteArrayInputStream stream = new ByteArrayInputStream(f.getName().getBytes());
 		// Read header
 		Header header = new Header();
-		header.load(ficheroEntrada);
+		header.load(stream);
 
 		// Create password
 		char[] pass = pw.toCharArray();
 
+		
 		// Set options
 		PBEKeySpec pbeKeySpec = new PBEKeySpec(pass);
 		PBEParameterSpec pPS = new PBEParameterSpec(header.getData(), itCount);
 		
+		// y aqui me daba error lo del algoritmo y ahi me he quedado 
 		// Generate session key based on algorythm
 		SecretKeyFactory kFactory = SecretKeyFactory.getInstance(header.getAlgorithm1());
 		SecretKey sKey = kFactory.generateSecret(pbeKeySpec);
@@ -106,7 +119,7 @@ public class Cypher {
 		c.init(Cipher.ENCRYPT_MODE, sKey, pPS);
 
 		// Get streams to operate on the file
-		String nombre = fichero.getAbsolutePath();
+		String nombre = f.getAbsolutePath();
 		nombre = nombre.substring(0, nombre.length() - 4); // Eliminate .cif sufix
 		FileOutputStream ficheroSalida = new FileOutputStream(nombre);
 		CipherInputStream cIn = new CipherInputStream(ficheroEntrada, c);
@@ -120,5 +133,9 @@ public class Cypher {
 		cIn.close();
 		ficheroEntrada.close();
 		ficheroSalida.close();
+	}
+	public static void main(String[] args) throws Exception {
+		
+		decipherFile();
 	}
 }
