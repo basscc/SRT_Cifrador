@@ -17,20 +17,7 @@ import utils.Header;
 import utils.Options;
 
 public class Cypher {
-	// TODO Borrar "PBEWithMD5AndDES"; "PBEWithMD5AndDES";
 
-	/*
-	 * TODO Borrar esto
-	 * 
-	 * Hay que modularizar esto, una clase para encriptar y otra para desencriptar
-	 * 
-	 * Quiza se puede utilizar una init para las variables previas (salt?)
-	 * (iteraciones?)
-	 * 
-	 * Mover ese Spam de try/catch
-	 * 
-	 */
-	
 	private int itCount;
 
 	public Cypher() {
@@ -50,7 +37,7 @@ public class Cypher {
 		random.nextBytes(saltBytes);
 
 		// Create header
-		Header header = new Header(Options.OP_SYMMETRIC_CIPHER, alg, "", saltBytes);
+		Header header = new Header(Options.OP_SYMMETRIC_CIPHER, alg, "none", saltBytes);
 
 		// Set options
 		PBEParameterSpec pPS = new PBEParameterSpec(header.getData(), itCount);
@@ -59,66 +46,73 @@ public class Cypher {
 		SecretKeyFactory kFactory = SecretKeyFactory.getInstance(header.getAlgorithm1());
 		SecretKey sKey = kFactory.generateSecret(pbeKeySpec);
 
-		// Set and initialize cypher using an algorythm, and also set the key and parameters 
+		// Set and initialize cypher using an algorythm, and also set the key and
+		// parameters
 		Cipher c = Cipher.getInstance(alg);
 		c.init(Cipher.ENCRYPT_MODE, sKey, pPS);
 
 		// Get streams to operate on the file
 		OutputStream fileOUT = new FileOutputStream(file + ".cif"); // Add .cif sufix
 		header.save(fileOUT);
-		FileInputStream ficheroEntrada = new FileInputStream(file);
+		FileInputStream fileIN = new FileInputStream(file);
 		CipherOutputStream cOut = new CipherOutputStream(fileOUT, c);
 
 		// Cypher file
 		int isEmpty; // If there are no more bits on the file, .read returns -1
 		byte[] block = new byte[16];
-		while ((isEmpty = ficheroEntrada.read(block)) != -1) {
+		while ((isEmpty = fileIN.read(block)) != -1) {
 			cOut.write(block, 0, isEmpty);
 			// TODO BORRAR System.out.println("encrypted: " + Hex.toHexString(block));
 		}
 		cOut.close();
-		ficheroEntrada.close();
+		fileIN.close();
 		fileOUT.close();
 	}
 
-	public void decipherFile(File fichero, String pw) throws Exception {
-		
+	public void decipherFile(File file, String pw) throws Exception {
+
 		// Get the stream of the IN file
-		InputStream ficheroEntrada = new FileInputStream(fichero);
+		FileInputStream fileIN = new FileInputStream(file);
 
 		// Read header
 		Header header = new Header();
-		header.load(ficheroEntrada);
 
-		// Create password
-		char[] pass = pw.toCharArray();
+		if (header.load(fileIN)) {
+			
+			// Create password
+			char[] pass = pw.toCharArray();
 
-		// Set options
-		PBEKeySpec pbeKeySpec = new PBEKeySpec(pass);
-		PBEParameterSpec pPS = new PBEParameterSpec(header.getData(), itCount);
-		
-		// Generate session key based on algorythm
-		SecretKeyFactory kFactory = SecretKeyFactory.getInstance(header.getAlgorithm1());
-		SecretKey sKey = kFactory.generateSecret(pbeKeySpec);
+			// Set options
+			PBEKeySpec pbeKeySpec = new PBEKeySpec(pass);
+			PBEParameterSpec pPS = new PBEParameterSpec(header.getData(), itCount);
 
-		// Set and initialize cypher using an algorythm, and also set the key and parameters 
-		Cipher c = Cipher.getInstance(header.getAlgorithm1());
-		c.init(Cipher.ENCRYPT_MODE, sKey, pPS);
+			// Generate session key based on algorythm
+			SecretKeyFactory kFactory = SecretKeyFactory.getInstance(header.getAlgorithm1());
+			SecretKey sKey = kFactory.generateSecret(pbeKeySpec);
 
-		// Get streams to operate on the file
-		String nombre = fichero.getAbsolutePath();
-		nombre = nombre.substring(0, nombre.length() - 4); // Eliminate .cif sufix
-		FileOutputStream ficheroSalida = new FileOutputStream(nombre);
-		CipherInputStream cIn = new CipherInputStream(ficheroEntrada, c);
+			// Set and initialize cypher using an algorythm, and also set the key and
+			// parameters
+			Cipher c = Cipher.getInstance(header.getAlgorithm1());
+			c.init(Cipher.DECRYPT_MODE, sKey, pPS);
 
-		// De-cypher file	
-		int isEmpty; // If there are no more bits on the file, .read returns -1
-		byte[] bloque = new byte[1024];
-		while ((isEmpty = cIn.read(bloque)) != -1) {
-			ficheroSalida.write(bloque, 0, isEmpty);
+			// Get streams to operate on the file
+			String name = file.getAbsolutePath();
+			name = name.substring(0, name.length() - 4); // Eliminate .cif sufix
+			FileOutputStream fileOUT = new FileOutputStream(name);
+			CipherInputStream cIn = new CipherInputStream(fileIN, c);
+
+			// De-cypher file
+			int isEmpty; // If there are no more bits on the file, .read returns -1
+			byte[] block = new byte[1024];
+			while ((isEmpty = cIn.read(block)) != -1) {
+				fileOUT.write(block, 0, isEmpty);
+			}
+			cIn.close();
+			fileOUT.close();
+		} else {
+			throw new Exception("ERROR : File header could not be read, it cannot be deciphered");
 		}
-		cIn.close();
-		ficheroEntrada.close();
-		ficheroSalida.close();
+
+		fileIN.close();
 	}
 }
