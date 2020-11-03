@@ -1,3 +1,4 @@
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -73,7 +74,7 @@ public class Cypher {
 
 		// Get the stream of the IN file
 		FileInputStream fileIN = new FileInputStream(file);
-
+    
 		// Read header
 		Header header = new Header();
 
