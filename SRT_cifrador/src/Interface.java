@@ -90,10 +90,10 @@ public class Interface extends JFrame {
 		algoryLabel.setText("Algoritmo:");
 		inFileLabel.setText("Texto del fichero sin cifrar");
 		outFileLabel.setText("Resultado del cifrado");
-		rootButton.setText("…");
+		rootButton.setText("â€¦");
 		acceptButton.setText("Aceptar");
 		decipButton.setText("Desencriptar");
-		pwLabel.setText("Contraseña:");
+		pwLabel.setText("ContraseÃ±a:");
 
 		rootTextField.setEditable(false);
 		algoryComboBox.setEditable(false);
@@ -240,10 +240,10 @@ public class Interface extends JFrame {
 				// boton aceptar
 				// TODO: menu elegir cifrar descifrar
 			} else {
-				updateStatus("ERROR : No se ha insertado ninguna contraseña.");
+				updateStatus("ERROR : No se ha insertado ninguna contraseÃ±a.");
 			}
 		} else {
-			updateStatus("ERROR : No se ha seleccionado ningún fichero.");
+			updateStatus("ERROR : No se ha seleccionado ningÃºn fichero.");
 		}
 	}
 	
@@ -262,10 +262,10 @@ public class Interface extends JFrame {
 
 				statusLabel.setText("Fichero descifrado correctamente.");
 			} else {
-				updateStatus("ERROR : No se ha insertado ninguna contraseña.");
+				updateStatus("ERROR : No se ha insertado ninguna contraseÃ±a.");
 			}
 		} else {
-			updateStatus("ERROR : No se ha seleccionado ningún fichero.");
+			updateStatus("ERROR : No se ha seleccionado ningÃºn fichero.");
 		}
 	}
 
@@ -310,7 +310,6 @@ public class Interface extends JFrame {
 
 	public static void main(String[] args) {
 		java.awt.EventQueue.invokeLater(Interface::new); // Call EventQueue on the UI to avoid freezes
-		decipherFile( "C:\\Users\\javipiti\\Desktop\\pruebaaa.txt.cif",  "asd");
 	}
 
 }
