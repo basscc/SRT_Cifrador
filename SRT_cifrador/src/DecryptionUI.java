@@ -18,7 +18,7 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 
-public class IDeCypher extends JFrame {
+public class DecryptionUI extends JFrame {
 
 	/**
 	 * 
@@ -48,7 +48,7 @@ public class IDeCypher extends JFrame {
 
 	private File rootPath;
 
-	public IDeCypher() {
+	public DecryptionUI() {
 		initComponents();
 		initLayout();
 		finishGui();
@@ -236,7 +236,7 @@ public class IDeCypher extends JFrame {
 	}
 
 	public static void main(String[] args) {
-		java.awt.EventQueue.invokeLater(IDeCypher::new); // Call EventQueue on the UI to avoid freezes
+		java.awt.EventQueue.invokeLater(DecryptionUI::new); // Call EventQueue on the UI to avoid freezes
 	}
 
 }
