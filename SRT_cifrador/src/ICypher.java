@@ -18,7 +18,7 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 
-public class Interface extends JFrame {
+public class ICypher extends JFrame {
 
 	/**
 	 * 
@@ -42,8 +42,6 @@ public class Interface extends JFrame {
 	private JButton rootButton;
 	private JButton acceptButton;
 	
-	private JButton decipButton;
-	
 	private JScrollPane filePane;
 	private JScrollPane resultsPane;
 	private JTextArea previewFileArea;
@@ -51,7 +49,7 @@ public class Interface extends JFrame {
 
 	private File rootPath;
 
-	public Interface() {
+	public ICypher() {
 		initComponents();
 		initLayout();
 		finishGui();
@@ -79,7 +77,6 @@ public class Interface extends JFrame {
 
 		rootButton = new JButton();
 		acceptButton = new JButton();
-		decipButton = new JButton();
 
 		previewFileArea = new JTextArea(6, 50);
 		cipherFileArea = new JTextArea(6, 50);
@@ -91,8 +88,7 @@ public class Interface extends JFrame {
 		inFileLabel.setText("Texto del fichero sin cifrar");
 		outFileLabel.setText("Resultado del cifrado");
 		rootButton.setText("…");
-		acceptButton.setText("Aceptar");
-		decipButton.setText("Desencriptar");
+		acceptButton.setText("Encriptar.");
 		pwLabel.setText("Contraseña:");
 
 		rootTextField.setEditable(false);
@@ -113,7 +109,6 @@ public class Interface extends JFrame {
 		});
 
 		acceptButton.addActionListener(this::startEncryption);
-		decipButton.addActionListener(this::startDecryption);
 	}
 
 	/*
@@ -135,8 +130,7 @@ public class Interface extends JFrame {
 						.addGroup(layout.createSequentialGroup().addComponent(pwLabel)
 								.addPreferredGap(ComponentPlacement.RELATED).addComponent(passwordField))
 						.addComponent(inFileLabel).addComponent(filePane).addComponent(outFileLabel)
-						.addComponent(resultsPane).addComponent(statusLabel)
-						.addComponent(decipButton))
+						.addComponent(resultsPane).addComponent(statusLabel))
 				.addContainerGap());
 
 		// Vertical groups
@@ -152,7 +146,6 @@ public class Interface extends JFrame {
 				.addPreferredGap(ComponentPlacement.RELATED).addComponent(outFileLabel)
 				.addPreferredGap(ComponentPlacement.RELATED).addComponent(resultsPane)
 				.addPreferredGap(ComponentPlacement.RELATED).addComponent(acceptButton)
-				.addPreferredGap(ComponentPlacement.RELATED).addComponent(decipButton)
 				.addPreferredGap(ComponentPlacement.RELATED).addComponent(statusLabel).addContainerGap());
 
 		// Link size of labels
@@ -247,27 +240,7 @@ public class Interface extends JFrame {
 		}
 	}
 	
-	private void startDecryption(ActionEvent event) {
-
-		if (rootPath != null) {
-			if (passwordField.getPassword().length != 0) {
-				updateStatus("Descifrando archivo");
-
-				try {
-					cypher.decipherFile(rootPath, String.valueOf(passwordField.getPassword()));
-					//previewEncryption();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-
-				statusLabel.setText("Fichero descifrado correctamente.");
-			} else {
-				updateStatus("ERROR : No se ha insertado ninguna contraseña.");
-			}
-		} else {
-			updateStatus("ERROR : No se ha seleccionado ningún fichero.");
-		}
-	}
+	
 
 	/*
 	 * Method to translate the drop down list into the exact algorithm name for
@@ -309,7 +282,7 @@ public class Interface extends JFrame {
 	}
 
 	public static void main(String[] args) {
-		java.awt.EventQueue.invokeLater(Interface::new); // Call EventQueue on the UI to avoid freezes
+		java.awt.EventQueue.invokeLater(ICypher::new); // Call EventQueue on the UI to avoid freezes
 	}
 
 }
