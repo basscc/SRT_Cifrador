@@ -164,7 +164,7 @@ public class Interface extends JFrame {
 	 */
 	private void finishGui() {
 		pack();
-		setTitle("Trabajo SRT");
+		setTitle("Cifrador 2020 SRT");
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setMinimumSize(MIN_SIZE);
 		setSize(DEFAULT_SIZE);
@@ -292,7 +292,7 @@ public class Interface extends JFrame {
 			break;
 
 		default:
-			chosen = "PBEWithMD5AndAES";
+			chosen = "PBEWithMD5AndDES";
 			break;
 		}
 
