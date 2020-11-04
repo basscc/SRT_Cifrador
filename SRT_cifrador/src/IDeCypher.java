@@ -59,7 +59,6 @@ public class IDeCypher extends JFrame {
 	 */
 	private void initComponents() {
 
-		String[] algorythms = { "SHA", "DES", "3DES" };
 		cypher = new Cypher();
 
 		rootLabel = new JLabel();
