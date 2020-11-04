@@ -1,5 +1,4 @@
 package gui;
-import java.Cypher;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -17,6 +16,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
+
+import functions.Cypher;
+
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 /*

@@ -1,3 +1,5 @@
+package gui;
+
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -6,7 +8,6 @@ import java.io.IOException;
 
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -15,19 +16,31 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
+
+import functions.Cypher;
+
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
+/*
+ * Developed by:
+ * 
+ * Carlos Salguero Sánchez
+ * Javier Tovar Pacheco
+ * 
+ * UNEX - 2020 - SRT
+ */
 
 public class DecryptionUI extends JFrame {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -6163772603012575756L;
+	private static final long serialVersionUID = -7155697168794874224L;
 
 	private static final Dimension MIN_SIZE = new Dimension(320, 330);
 	private static final Dimension DEFAULT_SIZE = new Dimension(640, 470);
 
+	MainMenu parentUI;
 	Cypher cypher;
 
 	private JLabel rootLabel;
@@ -39,8 +52,8 @@ public class DecryptionUI extends JFrame {
 	private JPasswordField passwordField;
 	private JButton rootButton;
 	private JButton acceptButton;
-	
-	
+	private JButton backButton;
+
 	private JScrollPane filePane;
 	private JScrollPane resultsPane;
 	private JTextArea previewFileArea;
@@ -48,7 +61,8 @@ public class DecryptionUI extends JFrame {
 
 	private File rootPath;
 
-	public DecryptionUI() {
+	public DecryptionUI(MainMenu parentUI) {
+		this.parentUI = parentUI; // Get the instance of the parentUI to be able to return to the previous window
 		initComponents();
 		initLayout();
 		finishGui();
@@ -70,9 +84,9 @@ public class DecryptionUI extends JFrame {
 		rootTextField = new JTextField();
 		passwordField = new JPasswordField();
 
-
 		rootButton = new JButton();
 		acceptButton = new JButton();
+		backButton = new JButton();
 
 		previewFileArea = new JTextArea(6, 50);
 		cipherFileArea = new JTextArea(6, 50);
@@ -83,14 +97,17 @@ public class DecryptionUI extends JFrame {
 		inFileLabel.setText("Texto del fichero cifrado");
 		outFileLabel.setText("Resultado del fichero descifrado");
 		rootButton.setText("…");
-		acceptButton.setText("Desenciptar.");
+		acceptButton.setText("Desencriptar");
+		backButton.setText("Volver");
 		pwLabel.setText("Contraseña:");
 
 		rootTextField.setEditable(false);
 		previewFileArea.setEditable(false);
 		cipherFileArea.setEditable(false);
+		// Remove the ugly text boundary box when clicking the button
 		rootButton.setFocusable(false);
 		acceptButton.setFocusable(false);
+		backButton.setFocusable(false);
 
 		passwordField.setEchoChar('*'); // Type * as the user writes in the component
 
@@ -103,6 +120,7 @@ public class DecryptionUI extends JFrame {
 		});
 
 		acceptButton.addActionListener(this::startDecryption);
+		backButton.addActionListener(this::goBackUI);
 	}
 
 	/*
@@ -117,27 +135,28 @@ public class DecryptionUI extends JFrame {
 				.addGroup(layout.createParallelGroup()
 						.addGroup(layout.createSequentialGroup().addComponent(rootLabel)
 								.addPreferredGap(ComponentPlacement.RELATED).addComponent(rootTextField)
-								.addPreferredGap(ComponentPlacement.RELATED).addComponent(rootButton))								
+								.addPreferredGap(ComponentPlacement.RELATED).addComponent(rootButton))
 						.addGroup(layout.createSequentialGroup().addComponent(pwLabel)
 								.addPreferredGap(ComponentPlacement.RELATED).addComponent(passwordField)
 								.addPreferredGap(ComponentPlacement.RELATED).addComponent(acceptButton))
 						.addComponent(inFileLabel).addComponent(filePane).addComponent(outFileLabel)
-						.addComponent(resultsPane).addComponent(statusLabel))
+						.addComponent(resultsPane).addComponent(backButton).addComponent(statusLabel))
 				.addContainerGap());
 
 		// Vertical groups
 		layout.setVerticalGroup(layout.createSequentialGroup().addContainerGap()
 				.addGroup(layout.createParallelGroup().addComponent(rootLabel).addComponent(rootTextField)
 						.addComponent(rootButton))
-				.addPreferredGap(ComponentPlacement.RELATED)
-				.addPreferredGap(ComponentPlacement.RELATED)
+				.addPreferredGap(ComponentPlacement.RELATED).addPreferredGap(ComponentPlacement.RELATED)
 				.addGroup(layout.createParallelGroup().addComponent(pwLabel).addComponent(passwordField))
 				.addPreferredGap(ComponentPlacement.RELATED).addComponent(inFileLabel)
 				.addPreferredGap(ComponentPlacement.RELATED).addComponent(filePane)
 				.addPreferredGap(ComponentPlacement.RELATED).addComponent(outFileLabel)
 				.addPreferredGap(ComponentPlacement.RELATED).addComponent(resultsPane)
-				.addPreferredGap(ComponentPlacement.RELATED).addComponent(acceptButton)
-				.addPreferredGap(ComponentPlacement.RELATED).addComponent(statusLabel).addContainerGap());
+				.addPreferredGap(ComponentPlacement.RELATED)
+				.addGroup(layout.createParallelGroup().addComponent(acceptButton).addComponent(backButton))
+				.addPreferredGap(ComponentPlacement.RELATED).addPreferredGap(ComponentPlacement.RELATED)
+				.addComponent(statusLabel).addContainerGap());
 
 		// Link size of labels
 		layout.linkSize(SwingConstants.HORIZONTAL, rootLabel, pwLabel);
@@ -148,13 +167,23 @@ public class DecryptionUI extends JFrame {
 	 */
 	private void finishGui() {
 		pack();
-		setTitle("Trabajo SRT");
+		setTitle("Cifrador 2020 SRT - Desencriptando");
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setMinimumSize(MIN_SIZE);
 		setSize(DEFAULT_SIZE);
 
 		setVisible(true);
 		updateStatus("Preparado para desencriptar.");
+	}
+
+	/*
+	 * Method to dispose of this window and go back to the parent UI
+	 */
+	private void goBackUI(ActionEvent event) {
+
+		parentUI.setVisible(true); // Make the main menu visible again
+		setVisible(false); // Hide this window
+		dispose(); // Remove this window
 	}
 
 	/*
@@ -187,15 +216,14 @@ public class DecryptionUI extends JFrame {
 		fileReader.close();
 	}
 
-
-
 	/*
 	 * Method to read the characters from the OUTPUT file after the encryption and
 	 * display them in the corresponding area
 	 */
-	private void previewDeEncryption() throws IOException {
+	private void previewDecryption() throws IOException {
 
-		FileReader fileReader = new FileReader(rootPath.getAbsolutePath().substring(0, rootPath.getAbsolutePath().length() - 4));
+		FileReader fileReader = new FileReader(
+				rootPath.getAbsolutePath().substring(0, rootPath.getAbsolutePath().length() - 4));
 		char[] display = new char[300];
 		fileReader.read(display, 0, 300);
 
@@ -203,7 +231,7 @@ public class DecryptionUI extends JFrame {
 
 		fileReader.close();
 	}
-	
+
 	private void startDecryption(ActionEvent event) {
 
 		if (rootPath != null) {
@@ -212,7 +240,7 @@ public class DecryptionUI extends JFrame {
 
 				try {
 					cypher.decipherFile(rootPath, String.valueOf(passwordField.getPassword()));
-					previewDeEncryption();
+					previewDecryption();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -234,9 +262,4 @@ public class DecryptionUI extends JFrame {
 		statusLabel.setText(formatted);
 		statusLabel.setToolTipText(formatted);
 	}
-
-	public static void main(String[] args) {
-		java.awt.EventQueue.invokeLater(DecryptionUI::new); // Call EventQueue on the UI to avoid freezes
-	}
-
 }

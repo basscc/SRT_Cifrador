@@ -1,4 +1,5 @@
 package gui;
+
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 
@@ -24,7 +25,7 @@ public class MainMenu extends JFrame {
 	 * 
 	 */
 	private static final long serialVersionUID = -6311365754074042278L;
-	
+
 	private static final Dimension MIN_SIZE = new Dimension(250, 250);
 	private static final Dimension DEFAULT_SIZE = new Dimension(300, 250);
 
@@ -52,7 +53,7 @@ public class MainMenu extends JFrame {
 		decryptButton.setFocusable(false);
 
 		encryptButton.addActionListener(this::encryptionUI);
-		// decryptButton.addActionListener(this::DecryptionUI);
+		decryptButton.addActionListener(this::decryptionUI);
 	}
 
 	/*
@@ -91,7 +92,7 @@ public class MainMenu extends JFrame {
 
 		setVisible(true);
 	}
-	
+
 	/*
 	 * Go to the Encryption window
 	 */
@@ -100,14 +101,15 @@ public class MainMenu extends JFrame {
 		new EncryptionUI(this);
 		setVisible(false);
 	}
-	
+
 	/*
+	 * Go to the Decryption window
+	 */
 	private void decryptionUI(ActionEvent event) {
 
-		new Interface(this);
+		new DecryptionUI(this);
 		setVisible(false);
 	}
-	*/
 
 	public MainMenu() {
 		initComponents();
