@@ -1,7 +1,7 @@
+package functions;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.SecureRandom;
 
@@ -15,6 +15,14 @@ import javax.crypto.spec.PBEParameterSpec;
 
 import utils.Header;
 import utils.Options;
+/*
+ * Developed by:
+ * 
+ * Carlos Salguero Sánchez
+ * Javier Tovar Pacheco
+ * 
+ * UNEX - 2020 - SRT
+ */
 
 public class Cypher {
 
@@ -78,7 +86,7 @@ public class Cypher {
 		Header header = new Header();
 
 		if (header.load(fileIN)) {
-			
+
 			// Create password
 			char[] pass = pw.toCharArray();
 

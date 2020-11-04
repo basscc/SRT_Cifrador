@@ -1,3 +1,4 @@
+package gui;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -15,10 +16,21 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
+
+import functions.Cypher;
+
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
+/*
+ * Developed by:
+ * 
+ * Carlos Salguero Sánchez
+ * Javier Tovar Pacheco
+ * 
+ * UNEX - 2020 - SRT
+ */
 
-public class Interface extends JFrame {
+public class EncryptionUI extends JFrame {
 
 	/**
 	 * 
@@ -28,6 +40,7 @@ public class Interface extends JFrame {
 	private static final Dimension MIN_SIZE = new Dimension(320, 330);
 	private static final Dimension DEFAULT_SIZE = new Dimension(640, 470);
 
+	MainMenu parentUI;
 	Cypher cypher;
 
 	private JLabel rootLabel;
@@ -41,9 +54,8 @@ public class Interface extends JFrame {
 	private JComboBox<String> algoryComboBox;
 	private JButton rootButton;
 	private JButton acceptButton;
-	
-	private JButton decipButton;
-	
+	private JButton backButton;
+
 	private JScrollPane filePane;
 	private JScrollPane resultsPane;
 	private JTextArea previewFileArea;
@@ -51,7 +63,8 @@ public class Interface extends JFrame {
 
 	private File rootPath;
 
-	public Interface() {
+	public EncryptionUI(MainMenu parentUI) {
+		this.parentUI = parentUI; // Get the instance of the parentUI to be able to return to the previous window
 		initComponents();
 		initLayout();
 		finishGui();
@@ -79,7 +92,7 @@ public class Interface extends JFrame {
 
 		rootButton = new JButton();
 		acceptButton = new JButton();
-		decipButton = new JButton();
+		backButton = new JButton();
 
 		previewFileArea = new JTextArea(6, 50);
 		cipherFileArea = new JTextArea(6, 50);
@@ -92,15 +105,17 @@ public class Interface extends JFrame {
 		outFileLabel.setText("Resultado del cifrado");
 		rootButton.setText("…");
 		acceptButton.setText("Aceptar");
-		decipButton.setText("Desencriptar");
+		backButton.setText("Volver");
 		pwLabel.setText("Contraseña:");
 
 		rootTextField.setEditable(false);
 		algoryComboBox.setEditable(false);
 		previewFileArea.setEditable(false);
 		cipherFileArea.setEditable(false);
+		// Remove the ugly text boundary box when clicking the button
 		rootButton.setFocusable(false);
 		acceptButton.setFocusable(false);
+		backButton.setFocusable(false);
 
 		passwordField.setEchoChar('*'); // Type * as the user writes in the component
 
@@ -113,7 +128,7 @@ public class Interface extends JFrame {
 		});
 
 		acceptButton.addActionListener(this::startEncryption);
-		decipButton.addActionListener(this::startDecryption);
+		backButton.addActionListener(this::goBackUI);
 	}
 
 	/*
@@ -135,8 +150,7 @@ public class Interface extends JFrame {
 						.addGroup(layout.createSequentialGroup().addComponent(pwLabel)
 								.addPreferredGap(ComponentPlacement.RELATED).addComponent(passwordField))
 						.addComponent(inFileLabel).addComponent(filePane).addComponent(outFileLabel)
-						.addComponent(resultsPane).addComponent(statusLabel)
-						.addComponent(decipButton))
+						.addComponent(resultsPane).addComponent(backButton).addComponent(statusLabel))
 				.addContainerGap());
 
 		// Vertical groups
@@ -151,8 +165,9 @@ public class Interface extends JFrame {
 				.addPreferredGap(ComponentPlacement.RELATED).addComponent(filePane)
 				.addPreferredGap(ComponentPlacement.RELATED).addComponent(outFileLabel)
 				.addPreferredGap(ComponentPlacement.RELATED).addComponent(resultsPane)
-				.addPreferredGap(ComponentPlacement.RELATED).addComponent(acceptButton)
-				.addPreferredGap(ComponentPlacement.RELATED).addComponent(decipButton)
+				.addPreferredGap(ComponentPlacement.RELATED)
+				.addGroup(layout.createParallelGroup().addComponent(acceptButton).addComponent(backButton))
+				.addPreferredGap(ComponentPlacement.RELATED)
 				.addPreferredGap(ComponentPlacement.RELATED).addComponent(statusLabel).addContainerGap());
 
 		// Link size of labels
@@ -160,17 +175,27 @@ public class Interface extends JFrame {
 	}
 
 	/*
-	 * Set the last parameters of the main window
+	 * Set the last parameters of this window
 	 */
 	private void finishGui() {
 		pack();
-		setTitle("Trabajo SRT");
+		setTitle("Cifrador 2020 SRT - Encriptando");
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setMinimumSize(MIN_SIZE);
 		setSize(DEFAULT_SIZE);
 
 		setVisible(true);
 		updateStatus("Preparado para encriptar.");
+	}
+
+	/*
+	 * Method to dispose of this window and go back to the parent UI
+	 */
+	private void goBackUI(ActionEvent event) {
+
+		parentUI.setVisible(true); // Make the main menu visible again
+		setVisible(false); // Hide this window
+		dispose(); // Remove this window
 	}
 
 	/*
@@ -223,6 +248,8 @@ public class Interface extends JFrame {
 	 */
 	private void startEncryption(ActionEvent event) {
 
+		// If no file nor password is provided, then do nothing
+
 		if (rootPath != null) {
 			if (passwordField.getPassword().length != 0) {
 				updateStatus("Cifrando con algoritmo : " + algoryComboBox.getSelectedItem().toString());
@@ -238,29 +265,6 @@ public class Interface extends JFrame {
 				statusLabel.setText("Fichero cifrado correctamente.");
 				// TODO: mostrar mensaje de fichero cifrado correctamente ventana emergente con
 				// boton aceptar
-				// TODO: menu elegir cifrar descifrar
-			} else {
-				updateStatus("ERROR : No se ha insertado ninguna contraseña.");
-			}
-		} else {
-			updateStatus("ERROR : No se ha seleccionado ningún fichero.");
-		}
-	}
-	
-	private void startDecryption(ActionEvent event) {
-
-		if (rootPath != null) {
-			if (passwordField.getPassword().length != 0) {
-				updateStatus("Descifrando archivo");
-
-				try {
-					cypher.decipherFile(rootPath, String.valueOf(passwordField.getPassword()));
-					//previewEncryption();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-
-				statusLabel.setText("Fichero descifrado correctamente.");
 			} else {
 				updateStatus("ERROR : No se ha insertado ninguna contraseña.");
 			}
@@ -292,7 +296,7 @@ public class Interface extends JFrame {
 			break;
 
 		default:
-			chosen = "PBEWithMD5AndAES";
+			chosen = "PBEWithMD5AndDES";
 			break;
 		}
 
@@ -307,9 +311,4 @@ public class Interface extends JFrame {
 		statusLabel.setText(formatted);
 		statusLabel.setToolTipText(formatted);
 	}
-
-	public static void main(String[] args) {
-		java.awt.EventQueue.invokeLater(Interface::new); // Call EventQueue on the UI to avoid freezes
-	}
-
 }
