@@ -31,14 +31,12 @@ public class IDeCypher extends JFrame {
 	Cypher cypher;
 
 	private JLabel rootLabel;
-	private JLabel algoryLabel;
 	private JLabel inFileLabel;
 	private JLabel outFileLabel;
 	private JLabel statusLabel;
 	private JLabel pwLabel;
 	private JTextField rootTextField;
 	private JPasswordField passwordField;
-	private JComboBox<String> algoryComboBox;
 	private JButton rootButton;
 	private JButton acceptButton;
 	
@@ -65,7 +63,6 @@ public class IDeCypher extends JFrame {
 		cypher = new Cypher();
 
 		rootLabel = new JLabel();
-		algoryLabel = new JLabel();
 		inFileLabel = new JLabel();
 		outFileLabel = new JLabel();
 		statusLabel = new JLabel();
@@ -74,7 +71,6 @@ public class IDeCypher extends JFrame {
 		rootTextField = new JTextField();
 		passwordField = new JPasswordField();
 
-		algoryComboBox = new JComboBox<String>(algorythms);
 
 		rootButton = new JButton();
 		acceptButton = new JButton();
@@ -85,15 +81,13 @@ public class IDeCypher extends JFrame {
 		resultsPane = new JScrollPane(cipherFileArea);
 
 		rootLabel.setText("Ruta de fichero:");
-		algoryLabel.setText("Algoritmo:");
-		inFileLabel.setText("Texto del fichero sin cifrar");
-		outFileLabel.setText("Resultado del cifrado");
+		inFileLabel.setText("Texto del fichero cifrado");
+		outFileLabel.setText("Resultado del fichero descifrado");
 		rootButton.setText("…");
 		acceptButton.setText("Desenciptar.");
 		pwLabel.setText("Contraseña:");
 
 		rootTextField.setEditable(false);
-		algoryComboBox.setEditable(false);
 		previewFileArea.setEditable(false);
 		cipherFileArea.setEditable(false);
 		rootButton.setFocusable(false);
@@ -124,9 +118,8 @@ public class IDeCypher extends JFrame {
 				.addGroup(layout.createParallelGroup()
 						.addGroup(layout.createSequentialGroup().addComponent(rootLabel)
 								.addPreferredGap(ComponentPlacement.RELATED).addComponent(rootTextField)
-								.addPreferredGap(ComponentPlacement.RELATED).addComponent(rootButton))
-						.addGroup(layout.createSequentialGroup().addComponent(algoryLabel)
-								.addPreferredGap(ComponentPlacement.RELATED).addComponent(algoryComboBox)
+								.addPreferredGap(ComponentPlacement.RELATED).addComponent(rootButton)
+								//TODO: He puesto el accept buton (desencriptar) aqui porque no sabia bien en que grupo meterlo)
 								.addPreferredGap(ComponentPlacement.RELATED).addComponent(acceptButton))
 						.addGroup(layout.createSequentialGroup().addComponent(pwLabel)
 								.addPreferredGap(ComponentPlacement.RELATED).addComponent(passwordField))
@@ -139,7 +132,6 @@ public class IDeCypher extends JFrame {
 				.addGroup(layout.createParallelGroup().addComponent(rootLabel).addComponent(rootTextField)
 						.addComponent(rootButton))
 				.addPreferredGap(ComponentPlacement.RELATED)
-				.addGroup(layout.createParallelGroup().addComponent(algoryLabel).addComponent(algoryComboBox))
 				.addPreferredGap(ComponentPlacement.RELATED)
 				.addGroup(layout.createParallelGroup().addComponent(pwLabel).addComponent(passwordField))
 				.addPreferredGap(ComponentPlacement.RELATED).addComponent(inFileLabel)
@@ -150,7 +142,7 @@ public class IDeCypher extends JFrame {
 				.addPreferredGap(ComponentPlacement.RELATED).addComponent(statusLabel).addContainerGap());
 
 		// Link size of labels
-		layout.linkSize(SwingConstants.HORIZONTAL, rootLabel, algoryLabel, pwLabel);
+		layout.linkSize(SwingConstants.HORIZONTAL, rootLabel, pwLabel);
 	}
 
 	/*
@@ -197,13 +189,15 @@ public class IDeCypher extends JFrame {
 		fileReader.close();
 	}
 
+
+
 	/*
 	 * Method to read the characters from the OUTPUT file after the encryption and
 	 * display them in the corresponding area
 	 */
-	private void previewEncryption() throws IOException {
+	private void previewDeEncryption() throws IOException {
 
-		FileReader fileReader = new FileReader(rootPath.getAbsolutePath() + ".cif");
+		FileReader fileReader = new FileReader(rootPath.getAbsolutePath().substring(0, rootPath.getAbsolutePath().length() - 4));
 		char[] display = new char[300];
 		fileReader.read(display, 0, 300);
 
@@ -211,8 +205,6 @@ public class IDeCypher extends JFrame {
 
 		fileReader.close();
 	}
-
-	
 	
 	private void startDecryption(ActionEvent event) {
 
@@ -222,7 +214,7 @@ public class IDeCypher extends JFrame {
 
 				try {
 					cypher.decipherFile(rootPath, String.valueOf(passwordField.getPassword()));
-					//previewEncryption();
+					previewDeEncryption();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -234,36 +226,6 @@ public class IDeCypher extends JFrame {
 		} else {
 			updateStatus("ERROR : No se ha seleccionado ningún fichero.");
 		}
-	}
-
-	/*
-	 * Method to translate the drop down list into the exact algorithm name for
-	 * later calls
-	 */
-	private String parseAlgoChosen(int op) {
-
-		String chosen;
-
-		switch (op) {
-
-		case 0:
-			chosen = "PBEWithSHA1AndDESede";
-			break;
-
-		case 1:
-			chosen = "PBEWithMD5AndDES";
-			break;
-
-		case 2:
-			chosen = "PBEWithMD5AndTripleDES";
-			break;
-
-		default:
-			chosen = "PBEWithMD5AndAES";
-			break;
-		}
-
-		return chosen;
 	}
 
 	/*
