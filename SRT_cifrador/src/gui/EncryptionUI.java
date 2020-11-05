@@ -11,6 +11,7 @@ import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -42,6 +43,8 @@ public class EncryptionUI extends JFrame {
 
 	MainMenu parentUI;
 	Cypher cypher;
+	
+	private Boolean opSuccessfull; // bool to determine if an operation was sucessfully executed
 
 	private JLabel rootLabel;
 	private JLabel algoryLabel;
@@ -77,6 +80,8 @@ public class EncryptionUI extends JFrame {
 
 		String[] algorythms = { "SHA", "DES", "3DES" };
 		cypher = new Cypher();
+		
+		opSuccessfull = false;
 
 		rootLabel = new JLabel();
 		algoryLabel = new JLabel();
@@ -224,6 +229,7 @@ public class EncryptionUI extends JFrame {
 
 		previewFileArea.setText("\\\\ Mostrando los primeros 300 caracteres del fichero: \n\n");
 		previewFileArea.append(String.valueOf(display));
+		previewFileArea.setCaretPosition(0); // Scroll back to the top
 
 		fileReader.close();
 	}
@@ -239,6 +245,7 @@ public class EncryptionUI extends JFrame {
 		fileReader.read(display, 0, 300);
 
 		cipherFileArea.setText(String.valueOf(display));
+		cipherFileArea.setCaretPosition(0); // Scroll back to the top
 
 		fileReader.close();
 	}
@@ -253,22 +260,38 @@ public class EncryptionUI extends JFrame {
 		if (rootPath != null) {
 			if (passwordField.getPassword().length != 0) {
 				updateStatus("Cifrando con algoritmo : " + algoryComboBox.getSelectedItem().toString());
+				
+				opSuccessfull = true;
 
 				try {
 					cypher.cipherFile(rootPath, parseAlgoChosen(algoryComboBox.getSelectedIndex()),
 							String.valueOf(passwordField.getPassword()));
-					previewEncryption();
 				} catch (Exception e) {
 					e.printStackTrace();
+					opSuccessfull = false;
+				}
+				
+				if(opSuccessfull) { // If the file could be encrypted
+					
+					try {
+						previewEncryption(); // Show the encryption
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					
+					JOptionPane.showMessageDialog(this, "El fichero ha sido cifrado."); // Tell the user
+					updateStatus("Fichero cifrado correctamente.");
+				}
+				else{
+					JOptionPane.showMessageDialog(this, "Se ha producido un error al cifrar.");
 				}
 
-				statusLabel.setText("Fichero cifrado correctamente.");
-				// TODO: mostrar mensaje de fichero cifrado correctamente ventana emergente con
-				// boton aceptar
 			} else {
+				JOptionPane.showMessageDialog(this, "ERROR : No se ha insertado ninguna contraseña.");
 				updateStatus("ERROR : No se ha insertado ninguna contraseña.");
 			}
 		} else {
+			JOptionPane.showMessageDialog(this, "ERROR : No se ha seleccionado ningún fichero.");
 			updateStatus("ERROR : No se ha seleccionado ningún fichero.");
 		}
 	}
