@@ -78,7 +78,7 @@ public class EncryptionUI extends JFrame {
 	 */
 	private void initComponents() {
 
-		String[] algorythms = { "SHA", "DES", "3DES" };
+		String[] algorythms = { "DES", "Triple DES", "RC2" };
 		cypher = new Cypher();
 		
 		opSuccessfull = false;
@@ -307,15 +307,15 @@ public class EncryptionUI extends JFrame {
 		switch (op) {
 
 		case 0:
-			chosen = "PBEWithSHA1AndDESede";
-			break;
-
-		case 1:
 			chosen = "PBEWithMD5AndDES";
 			break;
 
+		case 1:
+			chosen = "PBEWithSHA1AndDESede";
+			break;
+
 		case 2:
-			chosen = "PBEWithMD5AndTripleDES";
+			chosen = "PBEWithSHA1AndRC2_40";
 			break;
 
 		default:
