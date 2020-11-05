@@ -11,6 +11,7 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -42,6 +43,8 @@ public class DecryptionUI extends JFrame {
 
 	MainMenu parentUI;
 	Cypher cypher;
+	
+	private Boolean opSuccessfull; // bool to determine if an operation was sucessfully executed
 
 	private JLabel rootLabel;
 	private JLabel inFileLabel;
@@ -74,6 +77,8 @@ public class DecryptionUI extends JFrame {
 	private void initComponents() {
 
 		cypher = new Cypher();
+		
+		opSuccessfull = false;
 
 		rootLabel = new JLabel();
 		inFileLabel = new JLabel();
@@ -212,6 +217,7 @@ public class DecryptionUI extends JFrame {
 
 		previewFileArea.setText("\\\\ Mostrando los primeros 300 caracteres del fichero: \n\n");
 		previewFileArea.append(String.valueOf(display));
+		previewFileArea.setCaretPosition(0); // Scroll back to the top
 
 		fileReader.close();
 	}
@@ -228,6 +234,7 @@ public class DecryptionUI extends JFrame {
 		fileReader.read(display, 0, 300);
 
 		cipherFileArea.setText(String.valueOf(display));
+		cipherFileArea.setCaretPosition(0); // Scroll back to the top
 
 		fileReader.close();
 	}
@@ -237,19 +244,38 @@ public class DecryptionUI extends JFrame {
 		if (rootPath != null) {
 			if (passwordField.getPassword().length != 0) {
 				updateStatus("Descifrando archivo");
+				
+				opSuccessfull = true;
 
 				try {
 					cypher.decipherFile(rootPath, String.valueOf(passwordField.getPassword()));
 					previewDecryption();
 				} catch (Exception e) {
 					e.printStackTrace();
+					opSuccessfull = false;
+				}
+				
+				if(opSuccessfull) { // If the file could be decrypted
+					
+					try {
+						previewDecryption(); // Show the plain text
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					
+					JOptionPane.showMessageDialog(this, "El fichero ha sido descifrado."); // Tell the user
+					updateStatus("Fichero descifrado correctamente.");
+				}
+				else {
+					JOptionPane.showMessageDialog(this, "Se ha producido un error al descifrar.");
 				}
 
-				statusLabel.setText("Fichero descifrado correctamente.");
 			} else {
+				JOptionPane.showMessageDialog(this, "ERROR : No se ha insertado ninguna contraseña.");
 				updateStatus("ERROR : No se ha insertado ninguna contraseña.");
 			}
 		} else {
+			JOptionPane.showMessageDialog(this, "ERROR : No se ha seleccionado ningún fichero.");
 			updateStatus("ERROR : No se ha seleccionado ningún fichero.");
 		}
 	}
