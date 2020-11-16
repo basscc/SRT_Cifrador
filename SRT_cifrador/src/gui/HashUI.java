@@ -2,7 +2,6 @@ package gui;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 
 import javax.swing.GroupLayout;
@@ -18,7 +17,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
-import functions.Cypher;
+import functions.Hash;
 
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
@@ -31,42 +30,39 @@ import javax.swing.WindowConstants;
  * UNEX - 2020 - SRT
  */
 
-public class EncryptionUI extends JFrame {
+public class HashUI extends JFrame {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -6163772603012575756L;
+	private static final long serialVersionUID = -7155697168794874224L;
 
-	private static final Dimension MIN_SIZE = new Dimension(320, 330);
-	private static final Dimension DEFAULT_SIZE = new Dimension(640, 470);
+	private static final Dimension MIN_SIZE = new Dimension(350, 290);
+	private static final Dimension DEFAULT_SIZE = new Dimension(550, 340);
 
 	MainMenu parentUI;
-	Cypher cypher;
+	Hash hash;
 	
 	private Boolean opSuccessfull; // bool to determine if an operation was sucessfully executed
 
 	private JLabel rootLabel;
-	private JLabel algoryLabel;
-	private JLabel inFileLabel;
-	private JLabel outFileLabel;
+	private JLabel hashLabel;
 	private JLabel statusLabel;
 	private JLabel pwLabel;
+	private JLabel hashResultLabel;
 	private JTextField rootTextField;
 	private JPasswordField passwordField;
-	private JComboBox<String> algoryComboBox;
+	private JComboBox<String> hashComboBox;
 	private JButton rootButton;
 	private JButton acceptButton;
 	private JButton backButton;
 
-	private JScrollPane filePane;
-	private JScrollPane resultsPane;
-	private JTextArea previewFileArea;
-	private JTextArea cipherFileArea;
+	private JScrollPane hashPane;
+	private JTextArea hashResultArea;
 
 	private File rootPath;
 
-	public EncryptionUI(MainMenu parentUI) {
+	public HashUI(MainMenu parentUI) {
 		this.parentUI = parentUI; // Get the instance of the parentUI to be able to return to the previous window
 		initComponents();
 		initLayout();
@@ -77,46 +73,41 @@ public class EncryptionUI extends JFrame {
 	 * Initiate GUI components
 	 */
 	private void initComponents() {
-
-		String[] algorythms = { "DES", "Triple DES", "RC2" };
-		cypher = new Cypher();
+		
+		hash = new Hash();
+		String[] hashes = { "MD2", "MD5", "SHA-1" };
 		
 		opSuccessfull = false;
 
 		rootLabel = new JLabel();
-		algoryLabel = new JLabel();
-		inFileLabel = new JLabel();
-		outFileLabel = new JLabel();
+		hashLabel = new JLabel();
 		statusLabel = new JLabel();
 		pwLabel = new JLabel();
+		hashResultLabel = new JLabel();
 
 		rootTextField = new JTextField();
 		passwordField = new JPasswordField();
-
-		algoryComboBox = new JComboBox<String>(algorythms);
+		
+		hashComboBox = new JComboBox<String>(hashes);
 
 		rootButton = new JButton();
 		acceptButton = new JButton();
 		backButton = new JButton();
 
-		previewFileArea = new JTextArea(6, 50);
-		cipherFileArea = new JTextArea(6, 50);
-		filePane = new JScrollPane(previewFileArea);
-		resultsPane = new JScrollPane(cipherFileArea);
+		hashResultArea = new JTextArea(6, 50);
+		hashPane = new JScrollPane(hashResultArea);
 
 		rootLabel.setText("Ruta de fichero:");
-		algoryLabel.setText("Algoritmo:");
-		inFileLabel.setText("Texto del fichero sin cifrar");
-		outFileLabel.setText("Resultado del cifrado");
+		hashLabel.setText("Seleccionar hash:");
 		rootButton.setText("…");
-		acceptButton.setText("Aceptar");
+		acceptButton.setText("Crear hash");
 		backButton.setText("Volver");
 		pwLabel.setText("Contraseña:");
+		hashResultLabel.setText("Resultado del hash");
 
 		rootTextField.setEditable(false);
-		algoryComboBox.setEditable(false);
-		previewFileArea.setEditable(false);
-		cipherFileArea.setEditable(false);
+		hashResultArea.setEditable(false);
+		hashComboBox.setEditable(false);
 		// Remove the ugly text boundary box when clicking the button
 		rootButton.setFocusable(false);
 		acceptButton.setFocusable(false);
@@ -132,7 +123,7 @@ public class EncryptionUI extends JFrame {
 			}
 		});
 
-		acceptButton.addActionListener(this::startEncryption);
+		acceptButton.addActionListener(this::startHash);
 		backButton.addActionListener(this::goBackUI);
 	}
 
@@ -149,13 +140,13 @@ public class EncryptionUI extends JFrame {
 						.addGroup(layout.createSequentialGroup().addComponent(rootLabel)
 								.addPreferredGap(ComponentPlacement.RELATED).addComponent(rootTextField)
 								.addPreferredGap(ComponentPlacement.RELATED).addComponent(rootButton))
-						.addGroup(layout.createSequentialGroup().addComponent(algoryLabel)
-								.addPreferredGap(ComponentPlacement.RELATED).addComponent(algoryComboBox)
-								.addPreferredGap(ComponentPlacement.RELATED).addComponent(acceptButton))
+						.addGroup(layout.createSequentialGroup().addComponent(hashLabel)
+								.addPreferredGap(ComponentPlacement.RELATED).addComponent(hashComboBox))
 						.addGroup(layout.createSequentialGroup().addComponent(pwLabel)
-								.addPreferredGap(ComponentPlacement.RELATED).addComponent(passwordField))
-						.addComponent(inFileLabel).addComponent(filePane).addComponent(outFileLabel)
-						.addComponent(resultsPane).addComponent(backButton).addComponent(statusLabel))
+								.addPreferredGap(ComponentPlacement.RELATED).addComponent(passwordField)
+								.addPreferredGap(ComponentPlacement.RELATED).addComponent(acceptButton))
+						.addComponent(hashResultLabel).addComponent(hashPane)
+						.addComponent(backButton).addComponent(statusLabel))
 				.addContainerGap());
 
 		// Vertical groups
@@ -163,34 +154,32 @@ public class EncryptionUI extends JFrame {
 				.addGroup(layout.createParallelGroup().addComponent(rootLabel).addComponent(rootTextField)
 						.addComponent(rootButton))
 				.addPreferredGap(ComponentPlacement.RELATED)
-				.addGroup(layout.createParallelGroup().addComponent(algoryLabel).addComponent(algoryComboBox))
+				.addGroup(layout.createParallelGroup().addComponent(hashLabel).addComponent(hashComboBox))
 				.addPreferredGap(ComponentPlacement.RELATED)
 				.addGroup(layout.createParallelGroup().addComponent(pwLabel).addComponent(passwordField))
-				.addPreferredGap(ComponentPlacement.RELATED).addComponent(inFileLabel)
-				.addPreferredGap(ComponentPlacement.RELATED).addComponent(filePane)
-				.addPreferredGap(ComponentPlacement.RELATED).addComponent(outFileLabel)
-				.addPreferredGap(ComponentPlacement.RELATED).addComponent(resultsPane)
+				.addPreferredGap(ComponentPlacement.RELATED).addComponent(hashResultLabel)
+				.addPreferredGap(ComponentPlacement.RELATED).addComponent(hashPane)
 				.addPreferredGap(ComponentPlacement.RELATED)
 				.addGroup(layout.createParallelGroup().addComponent(acceptButton).addComponent(backButton))
-				.addPreferredGap(ComponentPlacement.RELATED)
-				.addPreferredGap(ComponentPlacement.RELATED).addComponent(statusLabel).addContainerGap());
+				.addPreferredGap(ComponentPlacement.RELATED).addPreferredGap(ComponentPlacement.RELATED)
+				.addComponent(statusLabel).addContainerGap());
 
 		// Link size of labels
-		layout.linkSize(SwingConstants.HORIZONTAL, rootLabel, algoryLabel, pwLabel);
+		layout.linkSize(SwingConstants.HORIZONTAL, rootLabel, hashLabel, pwLabel);
 	}
 
 	/*
-	 * Set the last parameters of this window
+	 * Set the last parameters of the main window
 	 */
 	private void finishGui() {
 		pack();
-		setTitle("Cifrador 2020 SRT - Encriptando");
+		setTitle("Cifrador 2020 SRT - Crear Hash");
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setMinimumSize(MIN_SIZE);
 		setSize(DEFAULT_SIZE);
 
 		setVisible(true);
-		updateStatus("Preparado para encriptar.");
+		updateStatus("Preparado para crear el hash.");
 	}
 
 	/*
@@ -213,7 +202,6 @@ public class EncryptionUI extends JFrame {
 			updateStatus("Fichero seleccionado.");
 			rootPath = chooser.getSelectedFile();
 			rootTextField.setText(rootPath.getAbsolutePath()); // Display file path once chosen
-			previewFile(rootPath.getAbsolutePath()); // Show file content on preview zone
 		}
 	}
 
@@ -221,70 +209,52 @@ public class EncryptionUI extends JFrame {
 	 * Method to read the characters from the IN file and display them in the
 	 * corresponding area
 	 */
+	
+	/*
 	private void previewFile(String fileRoot) throws IOException {
 
 		FileReader fileReader = new FileReader(fileRoot);
 		char[] display = new char[300];
 		fileReader.read(display, 0, 300);
 
-		previewFileArea.setText("\\\\ Mostrando los primeros 300 caracteres del fichero: \n\n");
-		previewFileArea.append(String.valueOf(display));
-		previewFileArea.setCaretPosition(0); // Scroll back to the top
+		hashResultArea.setText(String.valueOf(display));
+		hashResultArea.setCaretPosition(0); // Scroll back to the top
 
 		fileReader.close();
 	}
+*/
 
-	/*
-	 * Method to read the characters from the OUTPUT file after the encryption and
-	 * display them in the corresponding area
-	 */
-	private void previewEncryption() throws IOException {
-
-		FileReader fileReader = new FileReader(rootPath.getAbsolutePath() + ".cif");
-		char[] display = new char[300];
-		fileReader.read(display, 0, 300);
-
-		cipherFileArea.setText(String.valueOf(display));
-		cipherFileArea.setCaretPosition(0); // Scroll back to the top
-
-		fileReader.close();
-	}
-
-	/*
-	 * Method to initiate the cyphering process once the "accept" button is clicked
-	 */
-	private void startEncryption(ActionEvent event) {
-
-		// If no file nor password is provided, then do nothing
+	private void startHash(ActionEvent event) {
 
 		if (rootPath != null) {
 			if (passwordField.getPassword().length != 0) {
-				updateStatus("Cifrando con algoritmo : " + algoryComboBox.getSelectedItem().toString());
+				updateStatus("Aplicando hash al archivo");
 				
 				opSuccessfull = true;
 
 				try {
-					cypher.cipherFile(rootPath, parseAlgoChosen(algoryComboBox.getSelectedIndex()),
-							String.valueOf(passwordField.getPassword()));
+					hash.HashFile(rootPath, parseHashChosen(hashComboBox.getSelectedIndex()), String.valueOf(passwordField.getPassword()));
 				} catch (Exception e) {
 					e.printStackTrace();
 					opSuccessfull = false;
 				}
 				
-				if(opSuccessfull) { // If the file could be encrypted
-					
+				if(opSuccessfull) { // If the file could be decrypted
+					/*
 					try {
-						previewEncryption(); // Show the encryption
+						previewDecryption(); // Show the plain text
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
+					*/
+					//TODO Acabar el metodo de arriba
 					
-					JOptionPane.showMessageDialog(this, "El fichero ha sido cifrado."); // Tell the user
-					updateStatus("Fichero cifrado correctamente.");
+					JOptionPane.showMessageDialog(this, "Se ha creado el hash correctamente."); // Tell the user
+					updateStatus("Se ha creado el hash correctamente.");
 				}
-				else{
-					JOptionPane.showMessageDialog(this, "Se ha producido un error al cifrar.");
-					updateStatus("ERROR : No se ha podido cifrar el fichero.");
+				else {
+					JOptionPane.showMessageDialog(this, "Se ha producido un error al crear el hash.");
+					updateStatus("ERROR : No se ha podido crear el hash.");
 				}
 
 			} else {
@@ -296,31 +266,31 @@ public class EncryptionUI extends JFrame {
 			updateStatus("ERROR : No se ha seleccionado ningún fichero.");
 		}
 	}
-
+	
 	/*
 	 * Method to translate the drop down list into the exact algorithm name for
 	 * later calls
 	 */
-	private String parseAlgoChosen(int op) {
+	private String parseHashChosen(int op) {
 
 		String chosen;
 
 		switch (op) {
 
 		case 0:
-			chosen = "PBEWithMD5AndDES";
+			chosen = "MD2";
 			break;
 
 		case 1:
-			chosen = "PBEWithSHA1AndDESede";
+			chosen = "MD5";
 			break;
 
 		case 2:
-			chosen = "PBEWithSHA1AndRC2_40";
+			chosen = "SHA-1";
 			break;
 
 		default:
-			chosen = "PBEWithMD5AndDES";
+			chosen = "MD5";
 			break;
 		}
 
