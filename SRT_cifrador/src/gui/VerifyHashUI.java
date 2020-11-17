@@ -1,4 +1,5 @@
 package gui;
+
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -10,13 +11,14 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
-import functions.Cypher;
+import functions.Hash;
 
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
@@ -40,8 +42,8 @@ public class VerifyHashUI extends JFrame {
 	private static final Dimension DEFAULT_SIZE = new Dimension(500, 300);
 
 	MainMenu parentUI;
-	Cypher cypher;
-	
+	Hash hash;
+
 	private Boolean opSuccessfull; // bool to determine if an operation was sucessfully executed
 
 	private JLabel rootLabel;
@@ -71,8 +73,6 @@ public class VerifyHashUI extends JFrame {
 	 */
 	private void initComponents() {
 
-		cypher = new Cypher();
-		
 		opSuccessfull = false;
 
 		rootLabel = new JLabel();
@@ -114,7 +114,7 @@ public class VerifyHashUI extends JFrame {
 			}
 		});
 
-		acceptButton.addActionListener(this::startDecryption);
+		acceptButton.addActionListener(this::startVerifying);
 		backButton.addActionListener(this::goBackUI);
 	}
 
@@ -134,8 +134,8 @@ public class VerifyHashUI extends JFrame {
 						.addGroup(layout.createSequentialGroup().addComponent(pwLabel)
 								.addPreferredGap(ComponentPlacement.RELATED).addComponent(passwordField)
 								.addPreferredGap(ComponentPlacement.RELATED).addComponent(acceptButton))
-						.addComponent(hashLabel).addComponent(hashPane)
-						.addComponent(backButton).addComponent(statusLabel))
+						.addComponent(hashLabel).addComponent(hashPane).addComponent(backButton)
+						.addComponent(statusLabel))
 				.addContainerGap());
 
 		// Vertical groups
@@ -189,7 +189,7 @@ public class VerifyHashUI extends JFrame {
 			updateStatus("Fichero seleccionado.");
 			rootPath = chooser.getSelectedFile();
 			rootTextField.setText(rootPath.getAbsolutePath()); // Display file path once chosen
-			previewFile(rootPath.getAbsolutePath()); // Show file content on preview zone
+			// previewFile(rootPath.getAbsolutePath()); // Show file content on preview zone
 		}
 	}
 
@@ -209,29 +209,31 @@ public class VerifyHashUI extends JFrame {
 		fileReader.close();
 	}
 
-	private void startDecryption(ActionEvent event) {
-/*
+	private void startVerifying(ActionEvent event) {
+
 		if (rootPath != null) {
 			if (passwordField.getPassword().length != 0) {
-				updateStatus("Descifrando archivo");
+				updateStatus("Verificando archivo");
 				
 				opSuccessfull = true;
 
 				try {
-					cypher.decipherFile(rootPath, String.valueOf(passwordField.getPassword()));
-					previewDecryption();
+					System.out.println(rootPath);
+					System.out.println(String.valueOf(passwordField.getPassword()));
+					hash.verify(rootPath, String.valueOf(passwordField.getPassword()));
 				} catch (Exception e) {
 					e.printStackTrace();
 					opSuccessfull = false;
 				}
 				
 				if(opSuccessfull) { // If the file could be decrypted
-					
+					/*
 					try {
 						previewDecryption(); // Show the plain text
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
+					*/
 					
 					JOptionPane.showMessageDialog(this, "El fichero ha sido descifrado."); // Tell the user
 					updateStatus("Fichero descifrado correctamente.");
@@ -248,7 +250,7 @@ public class VerifyHashUI extends JFrame {
 			JOptionPane.showMessageDialog(this, "ERROR : No se ha seleccionado ningún fichero.");
 			updateStatus("ERROR : No se ha seleccionado ningún fichero.");
 		}
-		*/
+		
 	}
 
 	/*
