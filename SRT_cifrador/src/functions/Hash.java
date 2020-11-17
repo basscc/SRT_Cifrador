@@ -127,12 +127,9 @@ public class Hash {
 
 	public void verify(File file, String pw) throws Exception {
 
-		//System.out.println(file.getAbsolutePath());
 		// Create the file streams
-		//FileInputStream inFile = new FileInputStream(file.getAbsolutePath());
+		FileInputStream inFile = new FileInputStream(file.getAbsolutePath());
 
-		
-		/*
 		// Header
 		Header header = new Header();
 		header.load(inFile);
@@ -164,20 +161,20 @@ public class Hash {
 				nombre = nombre.substring(0, nombre.length() - 4);
 
 				// Fichero de salida
-				OutputStream salidaFichero = new FileOutputStream(nombre + ".cla");
+				OutputStream outFile = new FileOutputStream(nombre + ".cla");
 
 				// Fichero de entrada
 				FileInputStream inFich2 = new FileInputStream(file.getAbsolutePath());
 
 				// Escritura en el fichero de salida
 				int z = 0;
-				while ((z = inFich2.read(bloque)) != -1) {
-					salidaFichero.write(bloque, 0, z);
+				while ((z = inFile.read(bloque)) != -1) {
+					outFile.write(bloque, 0, z);
 				}
 
 				// Cierre de flujos
 				inFich2.close();
-				salidaFichero.close();
+				outFile.close();
 				System.out.println("El archivo ha sido verificado correctamente.");
 
 			} else {
@@ -246,7 +243,7 @@ public class Hash {
 				inFile.close();
 			}
 		}
-			*/
+			
 	}
 
 

@@ -73,6 +73,8 @@ public class VerifyHashUI extends JFrame {
 	 */
 	private void initComponents() {
 
+		hash = new Hash();
+		
 		opSuccessfull = false;
 
 		rootLabel = new JLabel();
