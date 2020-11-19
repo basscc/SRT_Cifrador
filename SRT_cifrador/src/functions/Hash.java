@@ -166,11 +166,11 @@ public class Hash {
 
 			// Comprobar si los resumenes son iguales para verificar
 			if (MessageDigest.isEqual(resumen, header.getData())) {
-				String nombre = file.getAbsolutePath();
-				nombre = nombre.substring(0, nombre.length() - 4);
+				String name = file.getAbsolutePath();
+				name = name.substring(0, name.length() - 4);
 
 				// Fichero de salida
-				OutputStream outFile = new FileOutputStream(nombre + ".cla");
+				OutputStream outFile = new FileOutputStream(name + ".cla");
 
 				// Fichero de entrada
 				FileInputStream inFich2 = new FileInputStream(file.getAbsolutePath());
@@ -225,11 +225,11 @@ public class Hash {
 				byte[] macCode = mac.doFinal();
 
 				if (MessageDigest.isEqual(macCode, header.getData())) {
-					String nombre = file.getAbsolutePath();
-					nombre = nombre.substring(0, nombre.length() - 4);
+					String name = file.getAbsolutePath();
+					name = name.substring(0, name.length() - 4);
 
 					// Fichero de salida
-					OutputStream salidaFichero = new FileOutputStream(nombre + ".cla");
+					OutputStream outFile = new FileOutputStream(name + ".cla");
 
 					// Fichero de entrada
 					FileInputStream inFich3 = new FileInputStream(file.getAbsolutePath());
@@ -238,12 +238,12 @@ public class Hash {
 					int b;
 
 					while ((b = inFich3.read(block)) != -1) {
-						salidaFichero.write(block, 0, b);
+						outFile.write(block, 0, b);
 					}
 
 					// Cierre de flujos
 					inFich3.close();
-					salidaFichero.close();
+					outFile.close();
 					System.out.println("El archivo ha sido verificado correctamente.");
 				} else {
 					System.out.println("El archivo NO ha podido ser verificado. Inténtelo de nuevo.");
