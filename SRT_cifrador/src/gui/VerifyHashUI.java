@@ -74,7 +74,7 @@ public class VerifyHashUI extends JFrame {
 	private void initComponents() {
 
 		hash = new Hash();
-		
+
 		opSuccessfull = false;
 
 		rootLabel = new JLabel();
@@ -191,57 +191,73 @@ public class VerifyHashUI extends JFrame {
 			updateStatus("Fichero seleccionado.");
 			rootPath = chooser.getSelectedFile();
 			rootTextField.setText(rootPath.getAbsolutePath()); // Display file path once chosen
-			// previewFile(rootPath.getAbsolutePath()); // Show file content on preview zone
 		}
 	}
 
 	/*
-	 * Method to read the characters from the IN file and display them in the
-	 * corresponding area
+	 * Method to show the result of the hash verification in the UI including Hash
+	 * stored in the header & Hash of the current message in HEX, the number of
+	 * bytes of the message
 	 */
-	private void previewFile(String fileRoot) throws IOException {
+	private void previewHashVerification() {
 
-		FileReader fileReader = new FileReader(fileRoot);
-		char[] display = new char[300];
-		fileReader.read(display, 0, 300);
+		StringBuffer sCalculated = new StringBuffer();
+		StringBuffer sStored = new StringBuffer();
 
-		hashResultArea.setText(String.valueOf(display));
+		// Get the byte array
+		String auxCalculated = new String(hash.getCalculatedHash());
+		String auxStored = new String(hash.getStoredHash());
+
+		// Transform into char array
+		char ch[] = auxCalculated.toCharArray();
+		for (int i = 0; i < ch.length; i++) {
+			String hexString = Integer.toHexString(ch[i]); // Convert to HEX
+			sCalculated.append(hexString);
+		}
+
+		// Do the same for the other array
+		char cj[] = auxStored.toCharArray();
+		for (int i = 0; i < cj.length; i++) {
+			String hexString = Integer.toHexString(cj[i]);
+			sStored.append(hexString);
+		}
+
+		String resultCalc = sCalculated.toString(); // Transform into String again
+		String resultStored = sStored.toString();
+
+		hashResultArea.setText("Hash calculado:\t" + resultCalc + "\nHash almacenado:\t" + resultStored + "\n\nHecho: "
+				+ Integer.toString(hash.getMessageBytes()) + " bytes"); // Show the String in the UI
 		hashResultArea.setCaretPosition(0); // Scroll back to the top
-
-		fileReader.close();
 	}
-
+	
+	/*
+	 * Method to start the process of Hash verification and handling different errors.
+	 */
 	private void startVerifying(ActionEvent event) {
 
 		if (rootPath != null) {
 			if (passwordField.getPassword().length != 0) {
 				updateStatus("Verificando archivo");
-				
+
 				opSuccessfull = true;
 
 				try {
-					System.out.println(rootPath);
-					System.out.println(String.valueOf(passwordField.getPassword()));
 					hash.verify(rootPath, String.valueOf(passwordField.getPassword()));
 				} catch (Exception e) {
 					e.printStackTrace();
 					opSuccessfull = false;
 				}
-				
-				if(opSuccessfull) { // If the file could be decrypted
-					/*
-					try {
-						previewDecryption(); // Show the plain text
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-					*/
+
+				if (opSuccessfull) { // If the file could be verified
+
+					previewHashVerification(); // Show the result in the UI
+
+					JOptionPane.showMessageDialog(this, "El fichero ha sido verificado correctamente."); // Tell the user
+					updateStatus("Fichero verificado correctamente.");
 					
-					JOptionPane.showMessageDialog(this, "El fichero ha sido descifrado."); // Tell the user
-					updateStatus("Fichero descifrado correctamente.");
-				}
-				else {
-					JOptionPane.showMessageDialog(this, "Se ha producido un error al descifrar.");
+				} else {
+					JOptionPane.showMessageDialog(this, "ERROR : La verificación del fichero ha fallado.");
+					updateStatus("ERROR : La verificación del fichero ha fallado.");
 				}
 
 			} else {
@@ -252,7 +268,7 @@ public class VerifyHashUI extends JFrame {
 			JOptionPane.showMessageDialog(this, "ERROR : No se ha seleccionado ningún fichero.");
 			updateStatus("ERROR : No se ha seleccionado ningún fichero.");
 		}
-		
+
 	}
 
 	/*

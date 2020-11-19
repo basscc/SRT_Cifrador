@@ -152,6 +152,7 @@ public class Header  extends BasicHeader{
         else
         	System.out.println("Error en la carga");
         fis.close();
+        
     }
     catch (Exception e) {e.printStackTrace(); };
   }
