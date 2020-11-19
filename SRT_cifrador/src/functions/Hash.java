@@ -71,14 +71,20 @@ public class Hash {
 			header.save(outFile);
 
 			//
+			// Cierre de flujos
+			inDigest.close();
+			inFile.close();
+			
+			FileInputStream inFile2 = new FileInputStream(file.getAbsolutePath());
+			
 			int a = 0;
-			while ((a = inFile.read(bloque)) != -1) {
+			while ((a = inFile2.read(bloque)) != -1) {
 				outFile.write(bloque, 0, a);
 			}
 
 			//
-			inDigest.close();
-			inFile.close();
+			//inDigest.close();
+			inFile2.close();
 			outFile.close();
 		} else if (Options.isTypeAlgorithm(Options.macAlgorithms, chosenHash)) {
 
@@ -110,15 +116,18 @@ public class Hash {
 			// Creating the header
 			Header head = new Header(Options.OP_HASH_MAC, "none", chosenHash, macCode);
 			head.save(outFile);
-
+			
+			/////////////////////
+			FileInputStream inFile2 = new FileInputStream(file.getAbsolutePath());
 			//
 			int c = 0;
-			while ((c = inFile.read(block)) != -1) {
+			while ((c = inFile2.read(block)) != -1) {
 				outFile.write(block, 0, c);
 			}
 
 			//
 			inFile.close();
+			inFile2.close();
 			outFile.close();
 		} else {
 			throw new Exception("ERROR : Hashing algorythm not recognised, the operation has failed");
