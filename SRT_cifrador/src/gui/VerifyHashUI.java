@@ -1,9 +1,7 @@
 package gui;
-
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 
 import javax.swing.GroupLayout;
@@ -195,9 +193,11 @@ public class VerifyHashUI extends JFrame {
 	}
 
 	/*
-	 * Method to show the result of the hash verification in the UI including Hash
-	 * stored in the header & Hash of the current message in HEX, the number of
-	 * bytes of the message
+	 * Method to show the result of the hash verification in the UI 
+	 * This includes: 
+	 * Hash stored in the header 
+	 * Hash of the current message 
+	 * The longitude of the message in bytes
 	 */
 	private void previewHashVerification() {
 
@@ -243,23 +243,22 @@ public class VerifyHashUI extends JFrame {
 				opSuccessfull = true;
 
 				try {
-
-					hash.verify(rootPath, String.valueOf(passwordField.getPassword()));
+					hash.verifyHash(rootPath, String.valueOf(passwordField.getPassword()));
 				} catch (Exception e) {
 					e.printStackTrace();
 					opSuccessfull = false;
 				}
 
 				if (opSuccessfull) { // If the file could be verified
-					if (hash.isVerified()) {
-						previewHashVerification(); // Show the result in the UI
-						JOptionPane.showMessageDialog(this, "El fichero ha sido verificado correctamente."); // Tell the																// user
-						updateStatus("Fichero verificado correctamente.");
-						hash.setVerified(false);
-					} else {
-						JOptionPane.showMessageDialog(this, "El fichero no ha sido verificado."); // Tell the
-						// user
-						updateStatus("Fichero no verificado.");
+					
+					previewHashVerification(); // Show the result in the UI
+					
+					if (hash.isVerified()) { // If the hash matches
+						JOptionPane.showMessageDialog(this, "CORRECTO : El hash calculado concuerda con el fichero."); // Tell the user															// user
+						updateStatus("CORRECTO : Fichero verificado correctamente.");
+					} else { // If the hash is different
+						JOptionPane.showMessageDialog(this, "AVISO : El hash del fichero no concuerda."); 
+						updateStatus("AVISO : Hash incorrecto.");
 					}
 
 				} else {

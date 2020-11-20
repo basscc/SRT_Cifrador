@@ -1,5 +1,4 @@
 package gui;
-
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -76,7 +75,7 @@ public class HashUI extends JFrame {
 	private void initComponents() {
 
 		hash = new Hash();
-		String[] hashes = { "MD2", "MD5", "SHA-1", "SHA-256", "SHA-384", "SHA-512", "HmacMD5", "HmacSHA1", "HmacSHA256", "HmacSHA384", "HmacSHA512"};
+		String[] hashes = { "MD2", "MD5", "SHA-1", "SHA-256", "SHA-384", "SHA-512", "Hmac MD5", "Hmac SHA1", "Hmac SHA256", "Hmac SHA384", "Hmac SHA512"};
 
 		opSuccessfull = false;
 
@@ -207,8 +206,10 @@ public class HashUI extends JFrame {
 	}
 
 	/*
-	 * Method to show the result of the hash in the UI including Hash result in HEX,
-	 * the number of bytes of the message
+	 * Method to show the result of the hash verification in the UI 
+	 * This includes: 
+	 * Hash of the current message 
+	 * The longitude of the message in bytes
 	 */
 	private void previewHash() {
 
@@ -241,15 +242,14 @@ public class HashUI extends JFrame {
 				opSuccessfull = true;
 
 				try {
-					
-					hash.HashFile(rootPath, parseHashChosen(hashComboBox.getSelectedIndex()),
+					hash.hashFile(rootPath, parseHashChosen(hashComboBox.getSelectedIndex()),
 							String.valueOf(passwordField.getPassword()));
 				} catch (Exception e) {
 					e.printStackTrace();
 					opSuccessfull = false;
 				}
 
-				if (opSuccessfull) { // If the file could be decrypted
+				if (opSuccessfull) { // If the file could be hashed
 
 					previewHash(); // Show the result in the UI
 
@@ -292,9 +292,9 @@ public class HashUI extends JFrame {
 		case 2:
 			chosen = "SHA-1";
 			break;
+			
 		case 3:
 			chosen = "SHA-256"; 
-
 			break;
 
 		case 4:
@@ -304,6 +304,7 @@ public class HashUI extends JFrame {
 		case 5:
 			chosen = "SHA-512";
 			break;
+			
 		case 6:
 			chosen = "HmacMD5";
 			break;
@@ -315,6 +316,7 @@ public class HashUI extends JFrame {
 		case 8:
 			chosen = "HmacSHA256";
 			break;
+			
 		case 9:
 			chosen = "HmacSHA384";
 			break;
