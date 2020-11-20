@@ -267,6 +267,7 @@ public class DecryptionUI extends JFrame {
 				}
 				else {
 					JOptionPane.showMessageDialog(this, "Se ha producido un error al descifrar.");
+					updateStatus("ERROR : No se ha podido descifrar el fichero.");
 				}
 
 			} else {
