@@ -20,17 +20,19 @@ import utils.Options;
 public class Hash {
 
 	private int itCount;
-	
+
 	private int messageBytes; // Stores the number of bytes in the message
 	private byte[] CalculatedHash; // Stores the Hash calculated from the message
 	private byte[] StoredHash; // Stores the Hash from the header
+	private boolean verified; // True if hash verifies, false if not, inicialized to false
 
 	public Hash() {
 
 		this.itCount = 1;
 		this.messageBytes = -1;
+		verified = false;
 	}
-	
+
 	public void HashFile(File file, String chosenHash, String pw) throws Exception {
 
 		// Checking if type Hash or MAC
@@ -39,7 +41,7 @@ public class Hash {
 
 			// Create the file streams
 			FileInputStream inFile = new FileInputStream(file.getAbsolutePath());
-			
+
 			// Generate output file
 			String name = file.getAbsolutePath();
 			name = name.substring(0, name.length() - 4);
@@ -48,14 +50,11 @@ public class Hash {
 			// Handling the password
 			byte[] secret = pw.getBytes(StandardCharsets.UTF_8);
 
-			//
 			MessageDigest md = MessageDigest.getInstance(chosenHash);
 			md.update(secret);
 
-			//
 			DigestInputStream inDigest = new DigestInputStream(inFile, md);
 
-			//
 			byte[] bloque = new byte[2048];
 			int i = 0;
 			while (i != -1) {
@@ -63,18 +62,18 @@ public class Hash {
 			}
 			md = inDigest.getMessageDigest();
 
-			// TODO ??? Calculate the number of bytes in the message and store it to print it later
+			// Calculate the number of bytes in the message and store it to print
+			// it later
 			messageBytes = 0;
 			while (bloque[messageBytes] != '\0') {
 				messageBytes++;
 			}
 
-			//
 			byte[] resumen = md.digest();
-			
+
 			// Save the calculated hash code to print it later
 			CalculatedHash = new byte[resumen.length];
-			for (int h = 0; h<resumen.length; h++) {
+			for (int h = 0; h < resumen.length; h++) {
 				CalculatedHash[h] = resumen[h];
 			}
 
@@ -93,20 +92,25 @@ public class Hash {
 
 			inFile2.close();
 			outFile.close();
-			
-		// IF MAC
+
+			// IF MAC
 		} else if (Options.isTypeAlgorithm(Options.macAlgorithms, chosenHash)) {
 
 			// Create file streams
-			FileInputStream inFile = new FileInputStream(file.getAbsolutePath());
-			OutputStream outFile = new FileOutputStream(file.getAbsolutePath() + ".mac");
 
-			// Get the MAC algorithm instance 
+			FileInputStream inFile = new FileInputStream(file.getAbsolutePath());
+
+			// Generate output file
+			String name = file.getAbsolutePath();
+			name = name.substring(0, name.length() - 4);
+			OutputStream outFile = new FileOutputStream(name + ".mac");
+
+			// Get the MAC algorithm instance
 			Mac mac = Mac.getInstance(chosenHash);
-			
+
 			// Get the user password for PBE
 			char[] pass = pw.toCharArray();
-			
+
 			// Create byte salt for PBE
 			SecureRandom random = new SecureRandom();
 			byte[] saltBytes = new byte[8];
@@ -116,31 +120,42 @@ public class Hash {
 			SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
 			PBEKeySpec spec = new PBEKeySpec(pass, saltBytes, itCount, mac.getMacLength());
 			SecretKey secretKey = skf.generateSecret(spec);
-			
+
 			// Initiate MAC algorithm with session key
 			mac.init(secretKey);
 
 			//
-			byte[] block = new byte[1024];
+			byte[] block = new byte[2048];
 			while (inFile.read(block) != -1) {
 				mac.update(block);
 			}
 
-			//
+			// Calculate the number of bytes in the message and store it to print
+			// it later
+			messageBytes = 0;
+			while (block[messageBytes] != '\0') {
+				messageBytes++;
+			}
+
 			byte[] macCode = mac.doFinal();
+
+			// Save the calculated hash code to print it later
+			CalculatedHash = new byte[macCode.length];
+			for (int h = 0; h < macCode.length; h++) {
+				CalculatedHash[h] = macCode[h];
+			}
 
 			// Creating the header
 			Header head = new Header(Options.OP_HASH_MAC, "none", chosenHash, macCode);
 			head.save(outFile);
 
-			//
 			FileInputStream inFile2 = new FileInputStream(file.getAbsolutePath());
 			int c = 0;
 			while ((c = inFile2.read(block)) != -1) {
 				outFile.write(block, 0, c);
 			}
 
-			//
+			// Close the streams
 			inFile.close();
 			inFile2.close();
 			outFile.close();
@@ -157,13 +172,13 @@ public class Hash {
 		// Creating the header
 		Header header = new Header();
 		header.load(inFile);
-		
+
 		// Checking if type Hash or MAC
 		// IF hash
 		if (Options.isTypeAlgorithm(Options.hashAlgorithms, header.getAlgorithm2())) {
 
 			MessageDigest md = MessageDigest.getInstance(header.getAlgorithm2());
-			
+
 			byte[] pass = pw.getBytes(StandardCharsets.UTF_8);
 			md.update(pass);
 
@@ -175,12 +190,12 @@ public class Hash {
 			while (i != -1) {
 				i = dis.read(bloque);
 			}
-			
+
 			// Calculate the number of bytes in the message and store it to print it later
 			messageBytes = 0;
-	        while (bloque[messageBytes] != '\0') {  	
-	        	messageBytes++;
-	        }
+			while (bloque[messageBytes] != '\0') {
+				messageBytes++;
+			}
 
 			// Get the message ressume
 			md = dis.getMessageDigest();
@@ -188,42 +203,40 @@ public class Hash {
 
 			// Save the calculated hash code to print later
 			CalculatedHash = new byte[resumen.length];
-			for (int h = 0; h<resumen.length; h++) {
+			for (int h = 0; h < resumen.length; h++) {
 				CalculatedHash[h] = resumen[h];
 			}
-			
+
 			// Get the ressume in the header to print later
 			StoredHash = header.getData();
 
 			// Check if the ressume is equal to the header
 			if (MessageDigest.isEqual(resumen, header.getData())) {
-				
+
 				// Get the streams
 				String name = file.getAbsolutePath();
 				name = name.substring(0, name.length() - 4);
 				OutputStream outFile = new FileOutputStream(name + ".cla"); // remove extension and apply the new one
-				
+
 				outFile.write(bloque, 0, messageBytes);
 
 				outFile.close();
-				System.out.println("El archivo ha sido verificado correctamente.");
+				verified = true;
 
-			} else {
-				System.out.println("El archivo NO ha sido verificado. Inténtelo de nuevo.");
 			}
 
 			dis.close();
 			inFile.close();
-		
-		// IF MAC
+
+			// IF MAC
 		} else if (Options.isTypeAlgorithm(Options.macAlgorithms, header.getAlgorithm2())) {
-			
-			// Get the MAC algorithm instance 
+
+			// Get the MAC algorithm instance
 			Mac mac = Mac.getInstance(header.getAlgorithm2());
-			
+
 			// Get the user password for PBE
 			char[] passwd = pw.toCharArray();
-			
+
 			// Create byte salt for PBE
 			SecureRandom random = new SecureRandom();
 			byte[] saltBytes = new byte[8];
@@ -233,63 +246,90 @@ public class Hash {
 			SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
 			PBEKeySpec spec = new PBEKeySpec(passwd, saltBytes, itCount, mac.getMacLength());
 			SecretKey secretKey = skf.generateSecret(spec);
-			
+
 			// Initiate MAC algorithm with session key
 			mac.init(secretKey);
 
-			// A continuación procesaríamos la información a resumir, leyendo del stream de
-			// entrada y pasando los datos al algoritmo MAC
-			// mediante el método 'update()' .
-			// Cuando se llegue al final del mismo, para recuperar calcular y recuperar el
-			// código mac se invocaría el método 'doFinal()':
-			byte[] block = new byte[1024];
+			byte[] block = new byte[2048];
 			while (inFile.read(block) != -1) {
 				mac.update(block);
 			}
 
-			// Calcular y recuperar el cï¿½digo mac
+			// Calculate the number of bytes in the message and store it to print it later
+			messageBytes = 0;
+			while (block[messageBytes] != '\0') {
+				messageBytes++;
+			}
+
+			// Calculate mac Code
 			byte[] macCode = mac.doFinal();
 
+			// Save the calculated hash code to print later
+			CalculatedHash = new byte[macCode.length];
+			for (int h = 0; h < macCode.length; h++) {
+				CalculatedHash[h] = macCode[h];
+			}
+
+			// Get the ressume in the header to print later
+			StoredHash = header.getData();
+
+			for(int o=0; o<macCode.length;o++) {
+				System.out.print(macCode[o] + " ");
+			}
+			System.out.println();
+			for(int o=0; o<header.getData().length;o++) {
+				System.out.print(header.getData()[o] + " ");
+			}
+			System.out.println();
+			// TODO: mac Code llega aqui diferente, el header.getData está bien.
 			if (MessageDigest.isEqual(macCode, header.getData())) {
+
 				String name = file.getAbsolutePath();
 				name = name.substring(0, name.length() - 4);
 
-				// Fichero de salida
+				// Output file
 				OutputStream outFile = new FileOutputStream(name + ".cla");
 
-				// Fichero de entrada
+				// Input file
 				FileInputStream inFich3 = new FileInputStream(file.getAbsolutePath());
 
-				// Escritura en el fichero de salida
+				// Writting in output file
 				int b;
-
 				while ((b = inFich3.read(block)) != -1) {
 					outFile.write(block, 0, b);
 				}
 
-				// Cierre de flujos
+				// Close the streams
 				inFich3.close();
 				outFile.close();
-				System.out.println("El archivo ha sido verificado correctamente.");
-			} else {
-				System.out.println("El archivo NO ha podido ser verificado. Inténtelo de nuevo.");
+
+				verified = true;
 			}
-			// Cierre del fichero de entrada
+
+			// Close the input file stream
 			inFile.close();
 		} else {
 			throw new Exception("ERROR : Hashing algorithm not recognised, the operation has failed");
 		}
 	}
-	
+
 	public int getMessageBytes() {
 		return messageBytes;
 	}
-	
+
 	public byte[] getCalculatedHash() {
 		return CalculatedHash;
 	}
-	
+
 	public byte[] getStoredHash() {
 		return StoredHash;
+	}
+
+	public boolean isVerified() {
+		return verified;
+	}
+
+	public void setVerified(boolean verified) {
+		this.verified = verified;
 	}
 }

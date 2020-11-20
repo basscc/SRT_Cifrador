@@ -229,9 +229,10 @@ public class VerifyHashUI extends JFrame {
 				+ Integer.toString(hash.getMessageBytes()) + " bytes"); // Show the String in the UI
 		hashResultArea.setCaretPosition(0); // Scroll back to the top
 	}
-	
+
 	/*
-	 * Method to start the process of Hash verification and handling different errors.
+	 * Method to start the process of Hash verification and handling different
+	 * errors.
 	 */
 	private void startVerifying(ActionEvent event) {
 
@@ -242,6 +243,7 @@ public class VerifyHashUI extends JFrame {
 				opSuccessfull = true;
 
 				try {
+
 					hash.verify(rootPath, String.valueOf(passwordField.getPassword()));
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -249,12 +251,17 @@ public class VerifyHashUI extends JFrame {
 				}
 
 				if (opSuccessfull) { // If the file could be verified
+					if (hash.isVerified()) {
+						previewHashVerification(); // Show the result in the UI
+						JOptionPane.showMessageDialog(this, "El fichero ha sido verificado correctamente."); // Tell the																// user
+						updateStatus("Fichero verificado correctamente.");
+						hash.setVerified(false);
+					} else {
+						JOptionPane.showMessageDialog(this, "El fichero no ha sido verificado."); // Tell the
+						// user
+						updateStatus("Fichero no verificado.");
+					}
 
-					previewHashVerification(); // Show the result in the UI
-
-					JOptionPane.showMessageDialog(this, "El fichero ha sido verificado correctamente."); // Tell the user
-					updateStatus("Fichero verificado correctamente.");
-					
 				} else {
 					JOptionPane.showMessageDialog(this, "ERROR : La verificación del fichero ha fallado.");
 					updateStatus("ERROR : La verificación del fichero ha fallado.");

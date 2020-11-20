@@ -76,7 +76,7 @@ public class HashUI extends JFrame {
 	private void initComponents() {
 
 		hash = new Hash();
-		String[] hashes = { "MD2", "MD5", "SHA-1" };
+		String[] hashes = { "MD2", "MD5", "SHA-1", "SHA-256", "SHA-384", "SHA-512", "HmacMD5", "HmacSHA1", "HmacSHA256", "HmacSHA384", "HmacSHA512"};
 
 		opSuccessfull = false;
 
@@ -241,6 +241,7 @@ public class HashUI extends JFrame {
 				opSuccessfull = true;
 
 				try {
+					
 					hash.HashFile(rootPath, parseHashChosen(hashComboBox.getSelectedIndex()),
 							String.valueOf(passwordField.getPassword()));
 				} catch (Exception e) {
@@ -291,9 +292,39 @@ public class HashUI extends JFrame {
 		case 2:
 			chosen = "SHA-1";
 			break;
+		case 3:
+			chosen = "SHA-256"; 
+
+			break;
+
+		case 4:
+			chosen = "SHA-384";
+			break;
+
+		case 5:
+			chosen = "SHA-512";
+			break;
+		case 6:
+			chosen = "HmacMD5";
+			break;
+
+		case 7:
+			chosen = "HmacSHA1";
+			break;
+
+		case 8:
+			chosen = "HmacSHA256";
+			break;
+		case 9:
+			chosen = "HmacSHA384";
+			break;
+
+		case 10:
+			chosen = "HmacSHA512";
+			break;
 
 		default:
-			chosen = "MD5";
+			chosen = "MD2";
 			break;
 		}
 
