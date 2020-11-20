@@ -171,13 +171,13 @@ public class DecryptionUI extends JFrame {
 	 */
 	private void finishGui() {
 		pack();
-		setTitle("Cifrador 2020 SRT - Desencriptando");
+		setTitle("Cifrador 2020 SRT - Verificar hash");
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setMinimumSize(MIN_SIZE);
 		setSize(DEFAULT_SIZE);
 
 		setVisible(true);
-		updateStatus("Preparado para desencriptar.");
+		updateStatus("Preparado para verificar.");
 	}
 
 	/*
@@ -242,7 +242,7 @@ public class DecryptionUI extends JFrame {
 
 		if (rootPath != null) {
 			if (passwordField.getPassword().length != 0) {
-				updateStatus("Descifrando archivo");
+				updateStatus("Verificando archivo");
 				
 				opSuccessfull = true;
 
@@ -267,7 +267,7 @@ public class DecryptionUI extends JFrame {
 				}
 				else {
 					JOptionPane.showMessageDialog(this, "Se ha producido un error al descifrar.");
-					updateStatus("ERROR : No se ha podido descifrar el fichero.");
+					updateStatus("ERROR : Se ha producido un error al descifrar.");
 				}
 
 			} else {

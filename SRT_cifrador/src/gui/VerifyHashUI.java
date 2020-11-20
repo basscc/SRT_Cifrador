@@ -2,7 +2,6 @@ package gui;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 
 import javax.swing.GroupLayout;
@@ -10,13 +9,14 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
-import functions.Cypher;
+import functions.Hash;
 
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
@@ -40,8 +40,8 @@ public class VerifyHashUI extends JFrame {
 	private static final Dimension DEFAULT_SIZE = new Dimension(500, 300);
 
 	MainMenu parentUI;
-	Cypher cypher;
-	
+	Hash hash;
+
 	private Boolean opSuccessfull; // bool to determine if an operation was sucessfully executed
 
 	private JLabel rootLabel;
@@ -71,8 +71,8 @@ public class VerifyHashUI extends JFrame {
 	 */
 	private void initComponents() {
 
-		cypher = new Cypher();
-		
+		hash = new Hash();
+
 		opSuccessfull = false;
 
 		rootLabel = new JLabel();
@@ -114,7 +114,7 @@ public class VerifyHashUI extends JFrame {
 			}
 		});
 
-		acceptButton.addActionListener(this::startDecryption);
+		acceptButton.addActionListener(this::startVerifying);
 		backButton.addActionListener(this::goBackUI);
 	}
 
@@ -134,8 +134,8 @@ public class VerifyHashUI extends JFrame {
 						.addGroup(layout.createSequentialGroup().addComponent(pwLabel)
 								.addPreferredGap(ComponentPlacement.RELATED).addComponent(passwordField)
 								.addPreferredGap(ComponentPlacement.RELATED).addComponent(acceptButton))
-						.addComponent(hashLabel).addComponent(hashPane)
-						.addComponent(backButton).addComponent(statusLabel))
+						.addComponent(hashLabel).addComponent(hashPane).addComponent(backButton)
+						.addComponent(statusLabel))
 				.addContainerGap());
 
 		// Vertical groups
@@ -189,55 +189,81 @@ public class VerifyHashUI extends JFrame {
 			updateStatus("Fichero seleccionado.");
 			rootPath = chooser.getSelectedFile();
 			rootTextField.setText(rootPath.getAbsolutePath()); // Display file path once chosen
-			previewFile(rootPath.getAbsolutePath()); // Show file content on preview zone
 		}
 	}
 
 	/*
-	 * Method to read the characters from the IN file and display them in the
-	 * corresponding area
+	 * Method to show the result of the hash verification in the UI 
+	 * This includes: 
+	 * Hash stored in the header 
+	 * Hash of the current message 
+	 * The longitude of the message in bytes
 	 */
-	private void previewFile(String fileRoot) throws IOException {
+	private void previewHashVerification() {
 
-		FileReader fileReader = new FileReader(fileRoot);
-		char[] display = new char[300];
-		fileReader.read(display, 0, 300);
+		StringBuffer sCalculated = new StringBuffer();
+		StringBuffer sStored = new StringBuffer();
 
-		hashResultArea.setText(String.valueOf(display));
+		// Get the byte array
+		String auxCalculated = new String(hash.getCalculatedHash());
+		String auxStored = new String(hash.getStoredHash());
+
+		// Transform into char array
+		char ch[] = auxCalculated.toCharArray();
+		for (int i = 0; i < ch.length; i++) {
+			String hexString = Integer.toHexString(ch[i]); // Convert to HEX
+			sCalculated.append(hexString);
+		}
+
+		// Do the same for the other array
+		char cj[] = auxStored.toCharArray();
+		for (int i = 0; i < cj.length; i++) {
+			String hexString = Integer.toHexString(cj[i]);
+			sStored.append(hexString);
+		}
+
+		String resultCalc = sCalculated.toString(); // Transform into String again
+		String resultStored = sStored.toString();
+
+		hashResultArea.setText("Hash calculado:\t" + resultCalc + "\nHash almacenado:\t" + resultStored + "\n\nHecho: "
+				+ Integer.toString(hash.getMessageBytes()) + " bytes"); // Show the String in the UI
 		hashResultArea.setCaretPosition(0); // Scroll back to the top
-
-		fileReader.close();
 	}
 
-	private void startDecryption(ActionEvent event) {
-/*
+	/*
+	 * Method to start the process of Hash verification and handling different
+	 * errors.
+	 */
+	private void startVerifying(ActionEvent event) {
+
 		if (rootPath != null) {
 			if (passwordField.getPassword().length != 0) {
-				updateStatus("Descifrando archivo");
-				
+				updateStatus("Verificando archivo");
+
 				opSuccessfull = true;
 
 				try {
-					cypher.decipherFile(rootPath, String.valueOf(passwordField.getPassword()));
-					previewDecryption();
+					hash.verifyHash(rootPath, String.valueOf(passwordField.getPassword()));
 				} catch (Exception e) {
 					e.printStackTrace();
 					opSuccessfull = false;
 				}
-				
-				if(opSuccessfull) { // If the file could be decrypted
+
+				if (opSuccessfull) { // If the file could be verified
 					
-					try {
-						previewDecryption(); // Show the plain text
-					} catch (IOException e) {
-						e.printStackTrace();
+					previewHashVerification(); // Show the result in the UI
+					
+					if (hash.isVerified()) { // If the hash matches
+						JOptionPane.showMessageDialog(this, "CORRECTO : El hash calculado concuerda con el fichero."); // Tell the user															// user
+						updateStatus("CORRECTO : Fichero verificado correctamente.");
+					} else { // If the hash is different
+						JOptionPane.showMessageDialog(this, "AVISO : El hash del fichero no concuerda."); 
+						updateStatus("AVISO : Hash incorrecto.");
 					}
-					
-					JOptionPane.showMessageDialog(this, "El fichero ha sido descifrado."); // Tell the user
-					updateStatus("Fichero descifrado correctamente.");
-				}
-				else {
-					JOptionPane.showMessageDialog(this, "Se ha producido un error al descifrar.");
+
+				} else {
+					JOptionPane.showMessageDialog(this, "ERROR : La verificación del fichero ha fallado.");
+					updateStatus("ERROR : La verificación del fichero ha fallado.");
 				}
 
 			} else {
@@ -248,7 +274,7 @@ public class VerifyHashUI extends JFrame {
 			JOptionPane.showMessageDialog(this, "ERROR : No se ha seleccionado ningún fichero.");
 			updateStatus("ERROR : No se ha seleccionado ningún fichero.");
 		}
-		*/
+
 	}
 
 	/*

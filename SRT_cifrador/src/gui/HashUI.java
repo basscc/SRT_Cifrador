@@ -42,7 +42,7 @@ public class HashUI extends JFrame {
 
 	MainMenu parentUI;
 	Hash hash;
-	
+
 	private Boolean opSuccessfull; // bool to determine if an operation was sucessfully executed
 
 	private JLabel rootLabel;
@@ -73,10 +73,10 @@ public class HashUI extends JFrame {
 	 * Initiate GUI components
 	 */
 	private void initComponents() {
-		
+
 		hash = new Hash();
-		String[] hashes = { "MD2", "MD5", "SHA-1" };
-		
+		String[] hashes = { "MD2", "MD5", "SHA-1", "SHA-256", "SHA-384", "SHA-512", "Hmac MD5", "Hmac SHA1", "Hmac SHA256", "Hmac SHA384", "Hmac SHA512"};
+
 		opSuccessfull = false;
 
 		rootLabel = new JLabel();
@@ -87,7 +87,7 @@ public class HashUI extends JFrame {
 
 		rootTextField = new JTextField();
 		passwordField = new JPasswordField();
-		
+
 		hashComboBox = new JComboBox<String>(hashes);
 
 		rootButton = new JButton();
@@ -145,8 +145,8 @@ public class HashUI extends JFrame {
 						.addGroup(layout.createSequentialGroup().addComponent(pwLabel)
 								.addPreferredGap(ComponentPlacement.RELATED).addComponent(passwordField)
 								.addPreferredGap(ComponentPlacement.RELATED).addComponent(acceptButton))
-						.addComponent(hashResultLabel).addComponent(hashPane)
-						.addComponent(backButton).addComponent(statusLabel))
+						.addComponent(hashResultLabel).addComponent(hashPane).addComponent(backButton)
+						.addComponent(statusLabel))
 				.addContainerGap());
 
 		// Vertical groups
@@ -206,53 +206,57 @@ public class HashUI extends JFrame {
 	}
 
 	/*
-	 * Method to read the characters from the IN file and display them in the
-	 * corresponding area
+	 * Method to show the result of the hash verification in the UI 
+	 * This includes: 
+	 * Hash of the current message 
+	 * The longitude of the message in bytes
 	 */
+	private void previewHash() {
+
+		StringBuffer sb = new StringBuffer();
+
+		// Get the byte array
+		String auxS = new String(hash.getCalculatedHash());
+
+		// Transform into char array
+		char ch[] = auxS.toCharArray();
+		for (int i = 0; i < ch.length; i++) {
+			String hexString = Integer.toHexString(ch[i]); // Convert to HEX
+			sb.append(hexString);
+		}
+		String result = sb.toString(); // Transform into String again
+
+		hashResultArea.setText(result + "\n\nHecho: " + Integer.toString(hash.getMessageBytes()) + " bytes"); // Show the String in the UI
+		hashResultArea.setCaretPosition(0); // Scroll back to the top
+	}
 	
 	/*
-	private void previewFile(String fileRoot) throws IOException {
-
-		FileReader fileReader = new FileReader(fileRoot);
-		char[] display = new char[300];
-		fileReader.read(display, 0, 300);
-
-		hashResultArea.setText(String.valueOf(display));
-		hashResultArea.setCaretPosition(0); // Scroll back to the top
-
-		fileReader.close();
-	}
-*/
-
+	 * Method to start the process of Hashing and handling different errors.
+	 */
 	private void startHash(ActionEvent event) {
 
 		if (rootPath != null) {
 			if (passwordField.getPassword().length != 0) {
 				updateStatus("Aplicando hash al archivo");
-				
+
 				opSuccessfull = true;
 
 				try {
-					hash.HashFile(rootPath, parseHashChosen(hashComboBox.getSelectedIndex()), String.valueOf(passwordField.getPassword()));
+					hash.hashFile(rootPath, parseHashChosen(hashComboBox.getSelectedIndex()),
+							String.valueOf(passwordField.getPassword()));
 				} catch (Exception e) {
 					e.printStackTrace();
 					opSuccessfull = false;
 				}
-				
-				if(opSuccessfull) { // If the file could be decrypted
-					/*
-					try {
-						previewDecryption(); // Show the plain text
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-					*/
-					//TODO Acabar el metodo de arriba
-					
+
+				if (opSuccessfull) { // If the file could be hashed
+
+					previewHash(); // Show the result in the UI
+
 					JOptionPane.showMessageDialog(this, "Se ha creado el hash correctamente."); // Tell the user
 					updateStatus("Se ha creado el hash correctamente.");
-				}
-				else {
+					
+				} else {
 					JOptionPane.showMessageDialog(this, "Se ha producido un error al crear el hash.");
 					updateStatus("ERROR : No se ha podido crear el hash.");
 				}
@@ -266,7 +270,7 @@ public class HashUI extends JFrame {
 			updateStatus("ERROR : No se ha seleccionado ningún fichero.");
 		}
 	}
-	
+
 	/*
 	 * Method to translate the drop down list into the exact algorithm name for
 	 * later calls
@@ -288,9 +292,41 @@ public class HashUI extends JFrame {
 		case 2:
 			chosen = "SHA-1";
 			break;
+			
+		case 3:
+			chosen = "SHA-256"; 
+			break;
+
+		case 4:
+			chosen = "SHA-384";
+			break;
+
+		case 5:
+			chosen = "SHA-512";
+			break;
+			
+		case 6:
+			chosen = "HmacMD5";
+			break;
+
+		case 7:
+			chosen = "HmacSHA1";
+			break;
+
+		case 8:
+			chosen = "HmacSHA256";
+			break;
+			
+		case 9:
+			chosen = "HmacSHA384";
+			break;
+
+		case 10:
+			chosen = "HmacSHA512";
+			break;
 
 		default:
-			chosen = "MD5";
+			chosen = "MD2";
 			break;
 		}
 
