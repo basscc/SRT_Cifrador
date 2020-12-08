@@ -17,7 +17,11 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
+import functions.DigitalSignature;
 import functions.Hash;
+import gui.digitalSignature.DecipheUI;
+import gui.digitalSignature.SignUI;
+import gui.digitalSignature.VerifySignUI;
 
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
@@ -41,6 +45,7 @@ public class FirmaDigitalUI extends JFrame {
 	private static final Dimension DEFAULT_SIZE = new Dimension(500, 200);
 
 	MainMenu parentUI;
+	DigitalSignature ds;
 
 	private JLabel welcomeLabel;
 
@@ -64,6 +69,7 @@ public class FirmaDigitalUI extends JFrame {
 	 */
 	private void initComponents() {
 
+		ds = new DigitalSignature();
 		welcomeLabel = new JLabel();
 
 		firmarButton = new JButton();
@@ -101,7 +107,7 @@ public class FirmaDigitalUI extends JFrame {
 		verificarFirmaButton.addActionListener(this::verificarFirmaUI);
 		cifrarButton.addActionListener(this::cifrarLlaveUI);
 		descifrarButton.addActionListener(this::descifrarLlaveUI);
-		
+		generarClaveButton.addActionListener(this::keyGeneration);
 		backButton.addActionListener(this::goBackUI);
 
 	}
@@ -163,7 +169,7 @@ public class FirmaDigitalUI extends JFrame {
 	 */
 	private void firmarUI(ActionEvent event) {
 
-		new FirmarUI(this);
+		new SignUI(this);
 		setVisible(false);
 	}
 
@@ -172,7 +178,7 @@ public class FirmaDigitalUI extends JFrame {
 	 */
 	private void verificarFirmaUI(ActionEvent event) {
 
-		new VerificarFirmaUI(this);
+		new VerifySignUI(this);
 		setVisible(false);
 	}
 	
@@ -190,8 +196,16 @@ public class FirmaDigitalUI extends JFrame {
 	 */
 	private void descifrarLlaveUI(ActionEvent event) {
 
-		new DescifrarLlaveUI(this);
+		new DecipheUI(this);
 		setVisible(false);
+	}
+	
+	/*
+	 * Go to the  window
+	 */
+	private void keyGeneration(ActionEvent event) {
+
+	
 	}
 	
 	/*

@@ -18,6 +18,11 @@ import javax.swing.LayoutStyle.ComponentPlacement;
  * UNEX - 2020 - SRT
  */
 
+import gui.encrypt_decrypt.DecryptionUI;
+import gui.encrypt_decrypt.EncryptionUI;
+import gui.hashing.HashUI;
+import gui.hashing.VerifyHashUI;
+
 public class MainMenu extends JFrame {
 
 	/**

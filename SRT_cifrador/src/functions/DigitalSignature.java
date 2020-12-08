@@ -68,6 +68,10 @@ public class DigitalSignature {
 			// Getting instance for key pair generation
 			KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA"); // TODO: esto esta en el campus a medias, en RSA
 																		// pone algoritmo, y mas abajo pone [DSA], RSA.
+																		// lo que
+																		// esta entre corchetes se supone que no
+																		// funciona, porque en firma el sha1 no se que
+																		// tampoco rula
 			// Initialize the generator
 			kpg.initialize(512);
 			// Generate a key pair
@@ -151,7 +155,8 @@ public class DigitalSignature {
 	public static void sign(File file, String alg) throws Exception {
 
 		FileInputStream inFile = new FileInputStream(file.getAbsolutePath());
-		FileOutputStream outFile = new FileOutputStream(file + ".fir");
+		FileOutputStream outFile = new FileOutputStream(
+				file.getAbsolutePath().substring(0, file.getAbsolutePath().length() - 4) + ".fir");
 
 		// Creation of a sign
 		// Get the instance of the object
@@ -181,18 +186,18 @@ public class DigitalSignature {
 	}
 
 	public static boolean verifySign(File file) throws Exception {
-		
+
 		boolean verifies = false;
 		FileInputStream inFile = new FileInputStream(file.getAbsolutePath());
 
 		Header header = new Header();
 		header.load(inFile);
-		//Verify the sign
-		//Getting instance of the object 
+		// Verify the sign
+		// Getting instance of the object
 		Signature dsa = Signature.getInstance(header.getAlgorithm2());
-		//Initiation to verify with public key
+		// Initiation to verify with public key
 		dsa.initVerify(getPublicKey());
-		//Process the information
+		// Process the information
 		byte[] block = new byte[1];
 		while (inFile.read(block) != -1) {
 			dsa.update(block);
@@ -204,7 +209,8 @@ public class DigitalSignature {
 		if (verifies) {
 			inFile.close();
 			inFile = new FileInputStream(file.getAbsolutePath());
-			FileOutputStream outFile = new FileOutputStream(file.getAbsolutePath().substring(0, file.getAbsolutePath().length() - 4) + ".cla");
+			FileOutputStream outFile = new FileOutputStream(
+					file.getAbsolutePath().substring(0, file.getAbsolutePath().length() - 4) + ".cla");
 			header.load(inFile);// para leer la cabecera
 			while (inFile.read(block) != -1) {
 				outFile.write(block);
@@ -212,7 +218,7 @@ public class DigitalSignature {
 			outFile.close();
 			inFile.close();
 		} else {
-			//TODO: 
+			// TODO:
 			System.out.println("No se pudo verificar la firma");
 		}
 		return verifies;
@@ -220,25 +226,25 @@ public class DigitalSignature {
 
 	public static void keyCipher(File file) throws Exception {
 
-		//TODO: semilla estatica, cambiar?
+		// TODO: semilla estatica, cambiar?
 		byte[] data = new byte[] { 0x7d, 0x60, 0x43, 0x5f, 0x02, 0x09, 0x0f, 0x0a };
 
 		String alg1 = "RSA/ECB/PKCS1Padding";
 		String alg2 = "none";
 
-		//Getting instance
+		// Getting instance
 		Cipher c = Cipher.getInstance(alg1);
-		//Initiation to ciphe with public key
+		// Initiation to ciphe with public key
 		c.init(c.ENCRYPT_MODE, getPublicKey());
 
-		//Obtain the file to ciphe
+		// Obtain the file to ciphe
 		FileInputStream inFile = new FileInputStream(file.getAbsolutePath());
-		FileOutputStream outFile = new FileOutputStream(file + ".cif");
+		FileOutputStream outFile = new FileOutputStream(file.getAbsolutePath().substring(0, file.getAbsolutePath().length() - 4) + ".cif");
 
 		Header header = new Header(Options.OP_PUBLIC_CIPHER, alg1, alg2, data);
 		header.save(outFile);
 		// Ciphe each block
-		int blockSize  = 53;
+		int blockSize = 53;
 		byte[] block = new byte[blockSize];
 		byte out[];
 		while ((inFile.read(block)) != -1) {
@@ -253,17 +259,18 @@ public class DigitalSignature {
 	public static void keyDecipher(File file) throws Exception {
 
 		FileInputStream inFile = new FileInputStream(file.getAbsolutePath());
-		FileOutputStream outFile = new FileOutputStream(file.getAbsolutePath().substring(0, file.getAbsolutePath().length() - 4) + ".cla");
+		FileOutputStream outFile = new FileOutputStream(
+				file.getAbsolutePath().substring(0, file.getAbsolutePath().length() - 4) + ".cla");
 
 		Header header = new Header();
 		header.load(inFile);
 
-		//Getting the instance 
+		// Getting the instance
 		Cipher c = Cipher.getInstance(header.getAlgorithm1());
-		//Initiation for decryption with private key 
+		// Initiation for decryption with private key
 		c.init(c.DECRYPT_MODE, getPrivateKey());
 
-		//Deciphe each block
+		// Deciphe each block
 		int blockSize = 64;
 		byte[] block = new byte[blockSize];
 		while ((inFile.read(block)) != -1) {
@@ -304,7 +311,7 @@ public class DigitalSignature {
 					sign(fichero, "SHA1withRSA");
 					break;
 				case "B":
-					sign(fichero, "SHAwithDSA");
+					sign(fichero, "SHA1withDSA"); //TODO: este no funciona, no implementarlo
 					break;
 				case "C":
 					sign(fichero, "MD2withRSA");

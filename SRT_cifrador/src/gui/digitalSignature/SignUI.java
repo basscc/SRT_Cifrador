@@ -1,4 +1,4 @@
-package gui;
+package gui.digitalSignature;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -17,6 +17,7 @@ import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
 import functions.Hash;
+import gui.FirmaDigitalUI;
 
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
@@ -29,7 +30,7 @@ import javax.swing.WindowConstants;
  * UNEX - 2020 - SRT
  */
 
-public class CifrarLlaveUI extends JFrame {
+public class SignUI extends JFrame {
 
 	/**
 	 * 
@@ -58,7 +59,7 @@ public class CifrarLlaveUI extends JFrame {
 
 	private File rootPath;
 
-	public CifrarLlaveUI(FirmaDigitalUI parentUI) {
+	public SignUI(FirmaDigitalUI parentUI) {
 		this.parentUI = parentUI; // Get the instance of the parentUI to be able to return to the previous window
 		initComponents();
 		initLayout();
