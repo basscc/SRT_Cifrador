@@ -25,7 +25,7 @@ public class MainMenu extends JFrame {
 	 */
 	private static final long serialVersionUID = -6311365754074042278L;
 
-	private static final Dimension MIN_SIZE = new Dimension(370, 200);
+	private static final Dimension MIN_SIZE = new Dimension(370, 300);
 	private static final Dimension DEFAULT_SIZE = new Dimension(420, 220);
 
 	private JLabel welcomeLabel;
@@ -34,6 +34,8 @@ public class MainMenu extends JFrame {
 	private JButton decryptButton;
 	private JButton hashButton;
 	private JButton verifyHashButton;
+	
+	private JButton firmarButton;
 
 	/*
 	 * Initiate GUI components
@@ -46,23 +48,31 @@ public class MainMenu extends JFrame {
 		decryptButton = new JButton();
 		hashButton = new JButton();
 		verifyHashButton = new JButton();
+		
+		firmarButton = new JButton();
 
 		welcomeLabel.setText("<html>Bienvenido al cifrador de SRT<br/><br/>¿Qué operación desea realizar?</html>");
 		encryptButton.setText("Encriptar un fichero");
 		decryptButton.setText("Desencriptar un fichero");
 		hashButton.setText("Hash un fichero");
 		verifyHashButton.setText("Verificar hash");
+		
+		firmarButton.setText("Firma digital");
 
 		welcomeLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		encryptButton.setFocusable(false);
 		decryptButton.setFocusable(false);
 		hashButton.setFocusable(false);
 		verifyHashButton.setFocusable(false);
+		
+		firmarButton.setFocusable(false);
 
 		encryptButton.addActionListener(this::encryptionUI);
 		decryptButton.addActionListener(this::decryptionUI);
 		hashButton.addActionListener(this::hashUI);
 		verifyHashButton.addActionListener(this::verifyHashUI);
+
+		firmarButton.addActionListener(this::firmarUI);
 	}
 
 	/*
@@ -82,7 +92,9 @@ public class MainMenu extends JFrame {
 										.addComponent(decryptButton))
 								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)	
 										.addComponent(hashButton)
-										.addComponent(verifyHashButton)))));
+										.addComponent(verifyHashButton)))
+						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+								.addComponent(firmarButton))));
 
 		// Vertical groups
 		layout.setVerticalGroup(layout.createSequentialGroup().addContainerGap()
@@ -95,10 +107,12 @@ public class MainMenu extends JFrame {
 						        	.addComponent(hashButton))
 						        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 						        	.addComponent(decryptButton)
-						        	.addComponent(verifyHashButton)))));	
+						        	.addComponent(verifyHashButton))
+						        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+						        		.addComponent(firmarButton)))));	
 				
 		// Link size of buttons
-		layout.linkSize(SwingConstants.HORIZONTAL, encryptButton, decryptButton, hashButton, verifyHashButton);
+		layout.linkSize(SwingConstants.HORIZONTAL, encryptButton, decryptButton, hashButton, verifyHashButton, firmarButton);
 	}
 
 	/*
@@ -147,6 +161,15 @@ public class MainMenu extends JFrame {
 	private void verifyHashUI(ActionEvent event) {
 
 		new VerifyHashUI(this);
+		setVisible(false);
+	}
+	
+	/*
+	 * Go to the firmar window
+	 */
+	private void firmarUI(ActionEvent event) {
+
+		new FirmaDigitalUI(this);
 		setVisible(false);
 	}
 
