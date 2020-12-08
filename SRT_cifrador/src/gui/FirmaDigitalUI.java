@@ -50,6 +50,7 @@ public class FirmaDigitalUI extends JFrame {
 	private JButton descifrarButton;
 
 	private JButton generarClaveButton;
+	private JButton backButton;
 
 	public FirmaDigitalUI(MainMenu parentUI) {
 		this.parentUI = parentUI; // Get the instance of the parentUI to be able to return to the previous window
@@ -71,6 +72,10 @@ public class FirmaDigitalUI extends JFrame {
 		descifrarButton = new JButton();
 
 		generarClaveButton = new JButton();
+		
+		backButton = new JButton();
+		
+		
 
 		welcomeLabel.setText("<html>¿Qué operación desea realizar?</html>");
 		firmarButton.setText("Firmar un fichero");
@@ -79,6 +84,8 @@ public class FirmaDigitalUI extends JFrame {
 		descifrarButton.setText("Descifrar fichero con clave");
 
 		generarClaveButton.setText("Generar claves");
+		
+		backButton.setText("Volver");
 
 		welcomeLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		firmarButton.setFocusable(false);
@@ -87,11 +94,15 @@ public class FirmaDigitalUI extends JFrame {
 		descifrarButton.setFocusable(false);
 
 		generarClaveButton.setFocusable(false);
+		
+		backButton.setFocusable(false);
 
 		firmarButton.addActionListener(this::firmarUI);
 		verificarFirmaButton.addActionListener(this::verificarFirmaUI);
 		cifrarButton.addActionListener(this::cifrarLlaveUI);
 		descifrarButton.addActionListener(this::descifrarLlaveUI);
+		
+		backButton.addActionListener(this::goBackUI);
 
 	}
 
@@ -111,7 +122,9 @@ public class FirmaDigitalUI extends JFrame {
 								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
 										.addComponent(cifrarButton).addComponent(descifrarButton)))
 						.addGroup(
-								layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(generarClaveButton))));
+								layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(generarClaveButton))
+						.addGroup(
+								layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(backButton))));
 
 		// Vertical groups
 		layout.setVerticalGroup(layout.createSequentialGroup().addContainerGap().addComponent(welcomeLabel)
@@ -123,7 +136,9 @@ public class FirmaDigitalUI extends JFrame {
 								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 										.addComponent(verificarFirmaButton).addComponent(descifrarButton))
 								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-										.addComponent(generarClaveButton)))));
+										.addComponent(generarClaveButton))
+								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+										.addComponent(backButton)))));
 
 		// Link size of buttons
 		layout.linkSize(SwingConstants.HORIZONTAL, firmarButton, verificarFirmaButton, cifrarButton, descifrarButton, generarClaveButton);
