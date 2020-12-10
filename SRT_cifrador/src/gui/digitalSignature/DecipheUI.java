@@ -9,14 +9,12 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
-import functions.Hash;
 import gui.FirmaDigitalUI;
 
 import javax.swing.SwingConstants;
@@ -35,7 +33,7 @@ public class DecipheUI extends JFrame {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -7155697168794874224L;
+	private static final long serialVersionUID = 2121179988724357664L;
 
 	private static final Dimension MIN_SIZE = new Dimension(300, 250);
 	private static final Dimension DEFAULT_SIZE = new Dimension(500, 300);

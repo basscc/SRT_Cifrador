@@ -1,30 +1,21 @@
 package functions;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.security.GeneralSecurityException;
-import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
-import java.security.SignatureException;
-import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import utils.Header;
 import utils.Options;
 
@@ -279,85 +270,6 @@ public class DigitalSignature {
 		}
 		outFile.close();
 		inFile.close();
-
-	}
-
-	public static void main(String[] args) throws Exception {
-		String tec;
-		BufferedReader lec = new BufferedReader(new InputStreamReader(System.in));
-
-		Boolean continuar = true;
-
-		do {
-			System.out.println("Seleccione la operación que desee:");
-			System.out.println("1: Generar Claves\n" + "2: Firmar Fichero\n" + "3: Verificar Firma\n"
-					+ "4: Cifrar fichero con claves\n" + "5: Descifrar fichero con claves");
-			tec = lec.readLine();
-			switch (tec) {
-			case "1":
-				generadorClaves();
-				break;
-			case "2":
-				System.out.println("Introduzca el nombre del fichero que desea firmar: ");
-				tec = "";
-				tec = lec.readLine();
-				File fichero = new File(tec);
-				System.out.println("¿Qué algoritmo desea utilizar para la fima? ");
-				System.out.println(
-						"A: SHA1withRSA" + "\n" + "B: SHAwithDSA" + "\n" + "C: MD2withRSA" + "\n" + "D: MD5withRSA");
-				tec = lec.readLine();
-				switch (tec) {
-				case "A":
-					sign(fichero, "SHA1withRSA");
-					break;
-				case "B":
-					sign(fichero, "SHA1withDSA"); //TODO: este no funciona, no implementarlo
-					break;
-				case "C":
-					sign(fichero, "MD2withRSA");
-					break;
-				case "D":
-					sign(fichero, "MD5withRSA");
-					break;
-				default:
-					System.out.println("La respuesta es incorrecta, vuelva a comenzar");
-					break;
-				}
-
-				break;
-			case "3":
-				System.out.println("Introduzca el nombre fichero sobre el que desea verificar la firma: ");
-				tec = "";
-				tec = lec.readLine();
-				File ficheroFirma = new File(tec);
-				verifySign(ficheroFirma);
-				break;
-			case "4":
-				System.out.println("Introduzca el nombre del fichero que desea cifrar con las claves: ");
-				tec = "";
-				tec = lec.readLine();
-				File ficheroClave = new File(tec);
-				keyCipher(ficheroClave);
-				break;
-			case "5":
-				System.out.println("Introduzca el nombre del fichero que desea descifrar con las claves: ");
-				tec = "";
-				tec = lec.readLine();
-				File ficheroClaveDes = new File(tec);
-				keyDecipher(ficheroClaveDes);
-				break;
-			default:
-				System.out.println("La respuesta es incorrecta, vuelva a ejecutar el proyecto");
-				break;
-			}
-			System.out.println("¿Desea realizar otra operacion?");
-			System.out.println("1: Si\n" + "2: No");
-			tec = lec.readLine();
-			if (!tec.equals("1")) {
-				continuar = false;
-			}
-
-		} while (continuar);
 
 	}
 }

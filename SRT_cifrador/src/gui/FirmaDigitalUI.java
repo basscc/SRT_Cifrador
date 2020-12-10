@@ -2,23 +2,14 @@ package gui;
 
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
-import java.io.File;
-import java.io.IOException;
 
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPasswordField;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
 import functions.DigitalSignature;
-import functions.Hash;
 import gui.digitalSignature.DecipheUI;
 import gui.digitalSignature.SignUI;
 import gui.digitalSignature.VerifySignUI;
