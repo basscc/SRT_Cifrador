@@ -163,7 +163,7 @@ public class KeyCipheUI extends JFrame {
 		setSize(DEFAULT_SIZE);
 
 		setVisible(true);
-		updateStatus("Preparado para verificar un hash.");
+		updateStatus("Preparado para cifrar con clave.");
 	}
 
 	/*

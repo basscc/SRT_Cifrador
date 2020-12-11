@@ -155,14 +155,14 @@ public class SignUI extends JFrame {
 	 * Set the last parameters of the main window
 	 */
 	private void finishGui() {
+		setTitle("Cifrador 2020 SRT - Firma digital");
 		pack();
-		setTitle("Cifrador 2020 SRT - Verificación de Hash");
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setMinimumSize(MIN_SIZE);
 		setSize(DEFAULT_SIZE);
 
 		setVisible(true);
-		updateStatus("Preparado para verificar un hash.");
+		updateStatus("Preparado para la firma digital.");
 	}
 
 	/*

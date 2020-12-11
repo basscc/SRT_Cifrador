@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -30,7 +31,7 @@ import javax.swing.WindowConstants;
  * UNEX - 2020 - SRT
  */
 
-public class VerifyHashUI extends JFrame {
+public class VerifyHashUI extends JDialog {
 
 	/**
 	 * 
@@ -162,7 +163,7 @@ public class VerifyHashUI extends JFrame {
 	private void finishGui() {
 		pack();
 		setTitle("Cifrador 2020 SRT - Verificación de Hash");
-		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setMinimumSize(MIN_SIZE);
 		setSize(DEFAULT_SIZE);
 
@@ -176,7 +177,6 @@ public class VerifyHashUI extends JFrame {
 	private void goBackUI(ActionEvent event) {
 
 		parentUI.setVisible(true); // Make the main menu visible again
-		setVisible(false); // Hide this window
 		dispose(); // Remove this window
 	}
 

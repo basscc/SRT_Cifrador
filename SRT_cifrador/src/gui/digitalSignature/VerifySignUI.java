@@ -156,13 +156,13 @@ public class VerifySignUI extends JFrame {
 	 */
 	private void finishGui() {
 		pack();
-		setTitle("Cifrador 2020 SRT - Verificación de Hash");
+		setTitle("Cifrador 2020 SRT - Verificación de firma digital");
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setMinimumSize(MIN_SIZE);
 		setSize(DEFAULT_SIZE);
 
 		setVisible(true);
-		updateStatus("Preparado para verificar un hash.");
+		updateStatus("Preparado para verificar una firma digital.");
 	}
 
 	/*

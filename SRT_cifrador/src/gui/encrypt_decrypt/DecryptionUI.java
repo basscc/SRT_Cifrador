@@ -1,12 +1,14 @@
 package gui.encrypt_decrypt;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
+import java.awt.event.WindowAdapter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -31,7 +33,7 @@ import javax.swing.WindowConstants;
  * UNEX - 2020 - SRT
  */
 
-public class DecryptionUI extends JFrame {
+public class DecryptionUI extends JDialog {
 
 	/**
 	 * 
@@ -66,6 +68,17 @@ public class DecryptionUI extends JFrame {
 
 	public DecryptionUI(MainMenu parentUI) {
 		this.parentUI = parentUI; // Get the instance of the parentUI to be able to return to the previous window
+		
+		// TODO Ver esto para poner listener que cuando se cierre la ventana, vuelva a mostrar al padre
+		/*
+		DecryptionUI.addWindowListener(new WindowAdapter() {
+		    @Override
+		    public void windowClosed(WindowEvent e) {
+		        parentFrame.setEnabled(true);
+		    }
+		});
+		*/
+		
 		initComponents();
 		initLayout();
 		finishGui();
@@ -173,7 +186,7 @@ public class DecryptionUI extends JFrame {
 	private void finishGui() {
 		pack();
 		setTitle("Cifrador 2020 SRT - Verificar hash");
-		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setMinimumSize(MIN_SIZE);
 		setSize(DEFAULT_SIZE);
 
@@ -187,7 +200,6 @@ public class DecryptionUI extends JFrame {
 	private void goBackUI(ActionEvent event) {
 
 		parentUI.setVisible(true); // Make the main menu visible again
-		setVisible(false); // Hide this window
 		dispose(); // Remove this window
 	}
 

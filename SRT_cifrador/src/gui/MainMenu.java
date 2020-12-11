@@ -139,7 +139,7 @@ public class MainMenu extends JFrame {
 	private void encryptionUI(ActionEvent event) {
 
 		new EncryptionUI(this);
-		setVisible(false);
+		//setVisible(false);
 	}
 
 	/*
@@ -148,7 +148,7 @@ public class MainMenu extends JFrame {
 	private void decryptionUI(ActionEvent event) {
 
 		new DecryptionUI(this);
-		setVisible(false);
+		//setVisible(false);
 	}
 	
 	/*
