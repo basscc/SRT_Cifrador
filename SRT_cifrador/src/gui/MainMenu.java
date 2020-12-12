@@ -1,5 +1,6 @@
 package gui;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 
 import javax.swing.GroupLayout;
@@ -9,6 +10,10 @@ import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 import javax.swing.LayoutStyle.ComponentPlacement;
+
+import gui.digitalSignature.*;
+import gui.encrypt_decrypt.*;
+import gui.hashing.*;
 /*
  * Developed by:
  * 
@@ -18,11 +23,6 @@ import javax.swing.LayoutStyle.ComponentPlacement;
  * UNEX - 2020 - SRT
  */
 
-import gui.encrypt_decrypt.DecryptionUI;
-import gui.encrypt_decrypt.EncryptionUI;
-import gui.hashing.HashUI;
-import gui.hashing.VerifyHashUI;
-
 public class MainMenu extends JFrame {
 
 	/**
@@ -30,17 +30,22 @@ public class MainMenu extends JFrame {
 	 */
 	private static final long serialVersionUID = -6311365754074042278L;
 
-	private static final Dimension MIN_SIZE = new Dimension(370, 300);
-	private static final Dimension DEFAULT_SIZE = new Dimension(420, 220);
+	private static final Dimension MIN_SIZE = new Dimension(360, 300);
+	private static final Dimension DEFAULT_SIZE = new Dimension(440, 350);
 
 	private JLabel welcomeLabel;
-
+	private JLabel dsLabel;
+	
 	private JButton encryptButton;
 	private JButton decryptButton;
 	private JButton hashButton;
 	private JButton verifyHashButton;
 	
-	private JButton firmarButton;
+	private JButton signButton;
+	private JButton verifySignButton;
+	private JButton keyCiphButton;
+	private JButton keyDeCiphButton;
+	private JButton genKeys;
 
 	/*
 	 * Initiate GUI components
@@ -48,36 +53,56 @@ public class MainMenu extends JFrame {
 	private void initComponents() {
 
 		welcomeLabel = new JLabel();
+		dsLabel = new JLabel();
 
 		encryptButton = new JButton();
 		decryptButton = new JButton();
 		hashButton = new JButton();
 		verifyHashButton = new JButton();
-		
-		firmarButton = new JButton();
+		signButton = new JButton();
+		verifySignButton = new JButton();
+		keyCiphButton = new JButton();
+		keyDeCiphButton = new JButton();
+		genKeys = new JButton();
 
 		welcomeLabel.setText("<html>Bienvenido al cifrador de SRT<br/><br/>¿Qué operación desea realizar?</html>");
+		welcomeLabel.setFont(new Font("", Font.ITALIC, 14));
+		dsLabel.setText("<html><b>Firma digital<b/></html>");
+		dsLabel.setFont(new Font("", Font.BOLD, 14));
+		
 		encryptButton.setText("Encriptar un fichero");
 		decryptButton.setText("Desencriptar un fichero");
 		hashButton.setText("Hash un fichero");
 		verifyHashButton.setText("Verificar hash");
-		
-		firmarButton.setText("Firma digital");
+		signButton.setText("Firmar un fichero");
+		verifySignButton.setText("Verificar firma");
+		keyCiphButton.setText("Cifrar con clave");
+		keyDeCiphButton.setText("Descifrar con clave");
+		genKeys.setText("Generar claves");
+
 
 		welcomeLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		dsLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		encryptButton.setFocusable(false);
 		decryptButton.setFocusable(false);
 		hashButton.setFocusable(false);
 		verifyHashButton.setFocusable(false);
-		
-		firmarButton.setFocusable(false);
+		signButton.setFocusable(false);
+		verifySignButton.setFocusable(false);
+		keyCiphButton.setFocusable(false);
+		keyDeCiphButton.setFocusable(false);
+		genKeys.setFocusable(false);
 
 		encryptButton.addActionListener(this::encryptionUI);
 		decryptButton.addActionListener(this::decryptionUI);
 		hashButton.addActionListener(this::hashUI);
 		verifyHashButton.addActionListener(this::verifyHashUI);
-
-		firmarButton.addActionListener(this::firmarUI);
+		
+		signButton.addActionListener(this::signUI);
+		verifySignButton.addActionListener(this::verifySignUI);
+		keyCiphButton.addActionListener(this::keyCipheUI);
+		keyDeCiphButton.addActionListener(this::decipheUI);
+		genKeys.addActionListener(this::keyGeneration);
 	}
 
 	/*
@@ -91,15 +116,20 @@ public class MainMenu extends JFrame {
 		layout.setHorizontalGroup(layout.createSequentialGroup().addContainerGap()
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
 						.addComponent(welcomeLabel)
+						.addComponent(dsLabel)
+						.addComponent(genKeys)
 						.addGroup(layout.createSequentialGroup()
 								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
 										.addComponent(encryptButton)
-										.addComponent(decryptButton))
+										.addComponent(decryptButton)
+										.addComponent(signButton)
+										.addComponent(verifySignButton))
 								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)	
 										.addComponent(hashButton)
-										.addComponent(verifyHashButton)))
-						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-								.addComponent(firmarButton))));
+										.addComponent(verifyHashButton)
+										.addComponent(keyCiphButton)
+										.addComponent(keyDeCiphButton)))));
+						
 
 		// Vertical groups
 		layout.setVerticalGroup(layout.createSequentialGroup().addContainerGap()
@@ -113,11 +143,20 @@ public class MainMenu extends JFrame {
 						        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 						        	.addComponent(decryptButton)
 						        	.addComponent(verifyHashButton))
+				.addPreferredGap(ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, 25)
+				.addComponent(dsLabel)
+				.addPreferredGap(ComponentPlacement.RELATED)
+								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+						        	.addComponent(signButton)
+						        	.addComponent(keyCiphButton))
 						        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-						        		.addComponent(firmarButton)))));	
+						        	.addComponent(verifySignButton)
+						        	.addComponent(keyDeCiphButton))))	
+				.addComponent(genKeys));
 				
 		// Link size of buttons
-		layout.linkSize(SwingConstants.HORIZONTAL, encryptButton, decryptButton, hashButton, verifyHashButton, firmarButton);
+		layout.linkSize(SwingConstants.HORIZONTAL, encryptButton, decryptButton, hashButton, verifyHashButton,
+				signButton, verifySignButton, keyCiphButton, keyDeCiphButton, genKeys);
 	}
 
 	/*
@@ -139,7 +178,6 @@ public class MainMenu extends JFrame {
 	private void encryptionUI(ActionEvent event) {
 
 		new EncryptionUI(this);
-		//setVisible(false);
 	}
 
 	/*
@@ -148,7 +186,6 @@ public class MainMenu extends JFrame {
 	private void decryptionUI(ActionEvent event) {
 
 		new DecryptionUI(this);
-		//setVisible(false);
 	}
 	
 	/*
@@ -157,7 +194,6 @@ public class MainMenu extends JFrame {
 	private void hashUI(ActionEvent event) {
 
 		new HashUI(this);
-		setVisible(false);
 	}
 	
 	/*
@@ -166,16 +202,47 @@ public class MainMenu extends JFrame {
 	private void verifyHashUI(ActionEvent event) {
 
 		new VerifyHashUI(this);
-		setVisible(false);
 	}
 	
 	/*
-	 * Go to the firmar window
+	 * Go to the  window
 	 */
-	private void firmarUI(ActionEvent event) {
+	private void signUI(ActionEvent event) {
 
-		new FirmaDigitalUI(this);
-		setVisible(false);
+		new SignUI(this);
+	}
+
+	/*
+	 * Go to the  window
+	 */
+	private void verifySignUI(ActionEvent event) {
+
+		new VerifySignUI(this);
+	}
+	
+	/*
+	 * Go to the  window
+	 */
+	private void keyCipheUI(ActionEvent event) {
+
+		new KeyCipheUI(this);
+	}
+	
+	/*
+	 * Go to the  window
+	 */
+	private void decipheUI(ActionEvent event) {
+
+		new KeyDecipheUI(this);
+	}
+	
+	/*
+	 * Go to the  window
+	 */
+	private void keyGeneration(ActionEvent event) {
+		
+		//ds.generadorClaves();
+		//TODO: mostrar ventana de que las claves se han creado (se crean en la carpeta del proyecto)
 	}
 
 	public MainMenu() {

@@ -1,7 +1,6 @@
 package gui.encrypt_decrypt;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
-import java.awt.event.WindowAdapter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -10,7 +9,6 @@ import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
@@ -68,17 +66,7 @@ public class DecryptionUI extends JDialog {
 
 	public DecryptionUI(MainMenu parentUI) {
 		this.parentUI = parentUI; // Get the instance of the parentUI to be able to return to the previous window
-		
-		// TODO Ver esto para poner listener que cuando se cierre la ventana, vuelva a mostrar al padre
-		/*
-		DecryptionUI.addWindowListener(new WindowAdapter() {
-		    @Override
-		    public void windowClosed(WindowEvent e) {
-		        parentFrame.setEnabled(true);
-		    }
-		});
-		*/
-		
+		this.setModalityType(ModalityType.APPLICATION_MODAL); // Make lower level windows to have blocked inputs 
 		initComponents();
 		initLayout();
 		finishGui();
@@ -173,7 +161,7 @@ public class DecryptionUI extends JDialog {
 				.addPreferredGap(ComponentPlacement.RELATED).addComponent(resultsPane)
 				.addPreferredGap(ComponentPlacement.RELATED)
 				.addGroup(layout.createParallelGroup().addComponent(acceptButton).addComponent(backButton))
-				.addPreferredGap(ComponentPlacement.RELATED).addPreferredGap(ComponentPlacement.RELATED)
+				.addPreferredGap(ComponentPlacement.RELATED)
 				.addComponent(statusLabel).addContainerGap());
 
 		// Link size of labels
@@ -185,7 +173,7 @@ public class DecryptionUI extends JDialog {
 	 */
 	private void finishGui() {
 		pack();
-		setTitle("Cifrador 2020 SRT - Verificar hash");
+		setTitle("Cifrador 2020 SRT - Desencriptar fichero");
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setMinimumSize(MIN_SIZE);
 		setSize(DEFAULT_SIZE);

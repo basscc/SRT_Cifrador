@@ -6,8 +6,8 @@ import java.io.IOException;
 
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
@@ -15,7 +15,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
-import gui.FirmaDigitalUI;
+import gui.MainMenu;
 
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
@@ -28,7 +28,7 @@ import javax.swing.WindowConstants;
  * UNEX - 2020 - SRT
  */
 
-public class DecipheUI extends JFrame {
+public class KeyDecipheUI extends JDialog {
 
 	/**
 	 * 
@@ -38,7 +38,7 @@ public class DecipheUI extends JFrame {
 	private static final Dimension MIN_SIZE = new Dimension(300, 250);
 	private static final Dimension DEFAULT_SIZE = new Dimension(500, 300);
 
-	FirmaDigitalUI parentUI;
+	MainMenu parentUI;
 
 	private Boolean opSuccessfull; // bool to determine if an operation was sucessfully executed
 
@@ -57,8 +57,9 @@ public class DecipheUI extends JFrame {
 
 	private File rootPath;
 
-	public DecipheUI(FirmaDigitalUI parentUI) {
-		this.parentUI = parentUI; // Get the instance of the parentUI to be able to return to the previous window
+	public KeyDecipheUI(MainMenu mainMenu) {
+		this.parentUI = mainMenu; // Get the instance of the parentUI to be able to return to the previous window
+		this.setModalityType(ModalityType.APPLICATION_MODAL); // Make lower level windows to have blocked inputs 
 		initComponents();
 		initLayout();
 		finishGui();
@@ -157,7 +158,7 @@ public class DecipheUI extends JFrame {
 	private void finishGui() {
 		pack();
 		setTitle("Cifrador 2020 SRT - Descifrar con clave");
-		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setMinimumSize(MIN_SIZE);
 		setSize(DEFAULT_SIZE);
 
