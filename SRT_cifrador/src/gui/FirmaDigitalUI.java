@@ -37,6 +37,7 @@ public class FirmaDigitalUI extends JFrame {
 
 	MainMenu parentUI;
 	DigitalSignature ds;
+	
 
 	private JLabel welcomeLabel;
 
@@ -94,7 +95,7 @@ public class FirmaDigitalUI extends JFrame {
 		
 		backButton.setFocusable(false);
 
-		firmarButton.addActionListener(this::firmarUI);
+		firmarButton.addActionListener(this::signUI);
 		verificarFirmaButton.addActionListener(this::verificarFirmaUI);
 		cifrarButton.addActionListener(this::cifrarLlaveUI);
 		descifrarButton.addActionListener(this::descifrarLlaveUI);
@@ -158,7 +159,7 @@ public class FirmaDigitalUI extends JFrame {
 	/*
 	 * Go to the  window
 	 */
-	private void firmarUI(ActionEvent event) {
+	private void signUI(ActionEvent event) {
 
 		new SignUI(this);
 		setVisible(false);
@@ -195,8 +196,10 @@ public class FirmaDigitalUI extends JFrame {
 	 * Go to the  window
 	 */
 	private void keyGeneration(ActionEvent event) {
-
-	
+		
+		ds.generadorClaves();
+		//TODO: mostrar ventana de que las claves se han creado (se crean en la carpeta del proyecto)
+		
 	}
 	
 	/*

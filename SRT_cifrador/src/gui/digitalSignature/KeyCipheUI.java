@@ -19,6 +19,8 @@ import gui.FirmaDigitalUI;
 
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
+
+import functions.DigitalSignature;
 /*
  * Developed by:
  * 
@@ -40,6 +42,7 @@ public class KeyCipheUI extends JFrame {
 	private static final Dimension DEFAULT_SIZE = new Dimension(500, 300);
 
 	FirmaDigitalUI parentUI;
+	DigitalSignature ds;
 
 	private Boolean opSuccessfull; // bool to determine if an operation was sucessfully executed
 
@@ -48,7 +51,6 @@ public class KeyCipheUI extends JFrame {
 	private JLabel statusLabel;
 	private JLabel pwLabel;
 	private JTextField rootTextField;
-	private JPasswordField passwordField;
 	private JButton rootButton;
 	private JButton acceptButton;
 	private JButton backButton;
@@ -71,6 +73,8 @@ public class KeyCipheUI extends JFrame {
 	private void initComponents() {
 
 
+		ds= new DigitalSignature();
+		
 		opSuccessfull = false;
 
 		rootLabel = new JLabel();
@@ -79,7 +83,6 @@ public class KeyCipheUI extends JFrame {
 		pwLabel = new JLabel();
 
 		rootTextField = new JTextField();
-		passwordField = new JPasswordField();
 
 		rootButton = new JButton();
 		acceptButton = new JButton();
@@ -91,7 +94,7 @@ public class KeyCipheUI extends JFrame {
 		rootLabel.setText("Ruta de fichero:");
 		hashLabel.setText("Resultado");
 		rootButton.setText("…");
-		acceptButton.setText("Verificar");
+		acceptButton.setText("Firmar");
 		backButton.setText("Volver");
 		pwLabel.setText("Contraseña:");
 
@@ -101,8 +104,6 @@ public class KeyCipheUI extends JFrame {
 		rootButton.setFocusable(false);
 		acceptButton.setFocusable(false);
 		backButton.setFocusable(false);
-
-		passwordField.setEchoChar('*'); // Type * as the user writes in the component
 
 		rootButton.addActionListener(e -> {
 			try {
@@ -127,9 +128,7 @@ public class KeyCipheUI extends JFrame {
 				.addGroup(layout.createParallelGroup()
 						.addGroup(layout.createSequentialGroup().addComponent(rootLabel)
 								.addPreferredGap(ComponentPlacement.RELATED).addComponent(rootTextField)
-								.addPreferredGap(ComponentPlacement.RELATED).addComponent(rootButton))
-						.addGroup(layout.createSequentialGroup().addComponent(pwLabel)
-								.addPreferredGap(ComponentPlacement.RELATED).addComponent(passwordField)
+								.addPreferredGap(ComponentPlacement.RELATED).addComponent(rootButton)
 								.addPreferredGap(ComponentPlacement.RELATED).addComponent(acceptButton))
 						.addComponent(hashLabel).addComponent(hashPane).addComponent(backButton)
 						.addComponent(statusLabel))
@@ -140,7 +139,6 @@ public class KeyCipheUI extends JFrame {
 				.addGroup(layout.createParallelGroup().addComponent(rootLabel).addComponent(rootTextField)
 						.addComponent(rootButton))
 				.addPreferredGap(ComponentPlacement.RELATED).addPreferredGap(ComponentPlacement.RELATED)
-				.addGroup(layout.createParallelGroup().addComponent(pwLabel).addComponent(passwordField))
 				.addPreferredGap(ComponentPlacement.RELATED).addComponent(hashLabel)
 				.addPreferredGap(ComponentPlacement.RELATED).addComponent(hashPane)
 				.addPreferredGap(ComponentPlacement.RELATED)

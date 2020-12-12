@@ -1,4 +1,5 @@
 package gui.digitalSignature;
+
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -9,12 +10,14 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
+import functions.DigitalSignature;
 import gui.FirmaDigitalUI;
 
 import javax.swing.SwingConstants;
@@ -34,26 +37,21 @@ public class SignUI extends JFrame {
 	 * 
 	 */
 	private static final long serialVersionUID = 5723206829220885984L;
-	
+
 	private static final Dimension MIN_SIZE = new Dimension(300, 250);
 	private static final Dimension DEFAULT_SIZE = new Dimension(500, 300);
 
 	FirmaDigitalUI parentUI;
+	DigitalSignature ds;
 
 	private Boolean opSuccessfull; // bool to determine if an operation was sucessfully executed
 
 	private JLabel rootLabel;
-	private JLabel hashLabel;
 	private JLabel statusLabel;
-	private JLabel pwLabel;
 	private JTextField rootTextField;
-	private JPasswordField passwordField;
 	private JButton rootButton;
 	private JButton acceptButton;
 	private JButton backButton;
-
-	private JScrollPane hashPane;
-	private JTextArea hashResultArea;
 
 	private File rootPath;
 
@@ -69,39 +67,29 @@ public class SignUI extends JFrame {
 	 */
 	private void initComponents() {
 
+		ds = new DigitalSignature();
 
 		opSuccessfull = false;
 
 		rootLabel = new JLabel();
-		hashLabel = new JLabel();
 		statusLabel = new JLabel();
-		pwLabel = new JLabel();
 
 		rootTextField = new JTextField();
-		passwordField = new JPasswordField();
 
 		rootButton = new JButton();
 		acceptButton = new JButton();
 		backButton = new JButton();
 
-		hashResultArea = new JTextArea(6, 50);
-		hashPane = new JScrollPane(hashResultArea);
-
 		rootLabel.setText("Ruta de fichero:");
-		hashLabel.setText("Resultado");
 		rootButton.setText("…");
-		acceptButton.setText("Verificar");
+		acceptButton.setText("Firmar");
 		backButton.setText("Volver");
-		pwLabel.setText("Contraseña:");
 
 		rootTextField.setEditable(false);
-		hashResultArea.setEditable(false);
 		// Remove the ugly text boundary box when clicking the button
 		rootButton.setFocusable(false);
 		acceptButton.setFocusable(false);
 		backButton.setFocusable(false);
-
-		passwordField.setEchoChar('*'); // Type * as the user writes in the component
 
 		rootButton.addActionListener(e -> {
 			try {
@@ -111,6 +99,7 @@ public class SignUI extends JFrame {
 			}
 		});
 
+		acceptButton.addActionListener(this::startSign);
 		backButton.addActionListener(this::goBackUI);
 	}
 
@@ -126,11 +115,9 @@ public class SignUI extends JFrame {
 				.addGroup(layout.createParallelGroup()
 						.addGroup(layout.createSequentialGroup().addComponent(rootLabel)
 								.addPreferredGap(ComponentPlacement.RELATED).addComponent(rootTextField)
-								.addPreferredGap(ComponentPlacement.RELATED).addComponent(rootButton))
-						.addGroup(layout.createSequentialGroup().addComponent(pwLabel)
-								.addPreferredGap(ComponentPlacement.RELATED).addComponent(passwordField)
-								.addPreferredGap(ComponentPlacement.RELATED).addComponent(acceptButton))
-						.addComponent(hashLabel).addComponent(hashPane).addComponent(backButton)
+								.addPreferredGap(ComponentPlacement.RELATED).addComponent(rootButton)
+								.addPreferredGap(ComponentPlacement.RELATED).addComponent(acceptButton)
+								.addPreferredGap(ComponentPlacement.RELATED).addComponent(backButton))
 						.addComponent(statusLabel))
 				.addContainerGap());
 
@@ -139,16 +126,11 @@ public class SignUI extends JFrame {
 				.addGroup(layout.createParallelGroup().addComponent(rootLabel).addComponent(rootTextField)
 						.addComponent(rootButton))
 				.addPreferredGap(ComponentPlacement.RELATED).addPreferredGap(ComponentPlacement.RELATED)
-				.addGroup(layout.createParallelGroup().addComponent(pwLabel).addComponent(passwordField))
-				.addPreferredGap(ComponentPlacement.RELATED).addComponent(hashLabel)
-				.addPreferredGap(ComponentPlacement.RELATED).addComponent(hashPane)
-				.addPreferredGap(ComponentPlacement.RELATED)
 				.addGroup(layout.createParallelGroup().addComponent(acceptButton).addComponent(backButton))
-				.addPreferredGap(ComponentPlacement.RELATED).addPreferredGap(ComponentPlacement.RELATED)
 				.addComponent(statusLabel).addContainerGap());
 
 		// Link size of labels
-		layout.linkSize(SwingConstants.HORIZONTAL, rootLabel, pwLabel);
+		layout.linkSize(SwingConstants.HORIZONTAL, rootLabel);
 	}
 
 	/*
@@ -188,7 +170,16 @@ public class SignUI extends JFrame {
 		}
 	}
 
-	
+	/*
+	 * 
+	 */
+	private void startSign(ActionEvent event) {
+
+		if (rootPath != null) {
+
+		}
+	}
+
 	/*
 	 * Update the status label at the bottom
 	 */
