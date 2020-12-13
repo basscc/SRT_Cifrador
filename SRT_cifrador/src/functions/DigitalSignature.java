@@ -19,8 +19,6 @@ import javax.crypto.Cipher;
 import utils.Header;
 import utils.Options;
 
-// TODO: todos los todo del documento son comentarios mios (piti)
-
 class Keys implements Serializable {
 	private static final long serialVersionUID = 8799656478674716638L;
 
@@ -51,51 +49,40 @@ public class DigitalSignature {
 	// TODO: salt estatica, cambiar?
 	static byte[] salt = new byte[] { 0x7d, 0x60, 0x43, 0x5f, 0x02, (byte) 0xe9, (byte) 0xe0, (byte) 0xae };
 
-	// TODO: esta vaina ha salido de un enlace del campus
-	// http://chuwiki.chuidiang.org/index.php?title=Serializaci%C3%B3n_de_objetos_en_java
-	// en principio esta bien
-	public static void generadorClaves() {
-		try {
-			// Getting instance for key pair generation
-			KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA"); // TODO: esto esta en el campus a medias, en RSA
-																		// pone algoritmo, y mas abajo pone [DSA], RSA.
-																		// lo que
-																		// esta entre corchetes se supone que no
-																		// funciona, porque en firma el sha1 no se que
-																		// tampoco rula
-			// Initialize the generator
-			kpg.initialize(512);
-			// Generate a key pair
-			KeyPair keyPair = kpg.generateKeyPair();
+	public void keyGeneration() throws NoSuchAlgorithmException, IOException {
 
-			// Access to the components
-			PublicKey pku = keyPair.getPublic();
-			PrivateKey pkr = keyPair.getPrivate();
+		// Getting instance for key pair generation
+		KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
 
-			// Use of serializable class to key generation
-			Keys keys = new Keys();
+		// Initialize the generator
+		kpg.initialize(512);
+		// Generate a key pair
+		KeyPair keyPair = kpg.generateKeyPair();
 
-			keys.setPublicKey(pku);
-			keys.setPrivateKey(pkr);
+		// Access to the components
+		PublicKey pku = keyPair.getPublic();
+		PrivateKey pkr = keyPair.getPrivate();
 
-			// Transform object to bytes[]
-			ByteArrayOutputStream bs = new ByteArrayOutputStream();
-			ObjectOutputStream os = new ObjectOutputStream(bs);
-			os.writeObject(keys);
-			os.close();
-			byte[] bytes = bs.toByteArray(); // it returns byte[]
+		// Use of serializable class to key generation
+		Keys keys = new Keys();
 
-			FileOutputStream outFile = new FileOutputStream("prueba.key");
-			outFile.write(bytes);
-			outFile.close();
+		keys.setPublicKey(pku);
+		keys.setPrivateKey(pkr);
 
-		} catch (NoSuchAlgorithmException | IOException e) {
-			e.printStackTrace();
-		}
+		// Transform object to bytes[]
+		ByteArrayOutputStream bs = new ByteArrayOutputStream();
+		ObjectOutputStream os = new ObjectOutputStream(bs);
+		os.writeObject(keys);
+		os.close();
+		byte[] bytes = bs.toByteArray(); // it returns byte[]
+
+		FileOutputStream outFile = new FileOutputStream("prueba.key");
+		outFile.write(bytes);
+		outFile.close();
 
 	}
 
-	public static PublicKey getPublicKey() {
+	public PublicKey getPublicKey() {
 		PublicKey pku = null;
 		try {
 			// Getting bytes stream
@@ -119,7 +106,7 @@ public class DigitalSignature {
 		return pku;
 	}
 
-	public static PrivateKey getPrivateKey() {
+	public PrivateKey getPrivateKey() {
 		PrivateKey pkr = null;
 		try {
 			// Getting bytes stream
@@ -143,7 +130,7 @@ public class DigitalSignature {
 		return pkr;
 	}
 
-	public static void sign(File file, String alg) throws Exception {
+	public void sign(File file, String alg) throws Exception {
 
 		FileInputStream inFile = new FileInputStream(file.getAbsolutePath());
 		FileOutputStream outFile = new FileOutputStream(
@@ -176,7 +163,7 @@ public class DigitalSignature {
 
 	}
 
-	public static boolean verifySign(File file) throws Exception {
+	public boolean verifySign(File file) throws Exception {
 
 		boolean verifies = false;
 		FileInputStream inFile = new FileInputStream(file.getAbsolutePath());
@@ -208,14 +195,12 @@ public class DigitalSignature {
 			}
 			outFile.close();
 			inFile.close();
-		} else {
-			// TODO:
-			System.out.println("No se pudo verificar la firma");
 		}
+
 		return verifies;
 	}
 
-	public static void keyCipher(File file) throws Exception {
+	public void keyCipher(File file) throws Exception {
 
 		// TODO: semilla estatica, cambiar?
 		byte[] data = new byte[] { 0x7d, 0x60, 0x43, 0x5f, 0x02, 0x09, 0x0f, 0x0a };
@@ -226,11 +211,12 @@ public class DigitalSignature {
 		// Getting instance
 		Cipher c = Cipher.getInstance(alg1);
 		// Initiation to ciphe with public key
-		c.init(c.ENCRYPT_MODE, getPublicKey());
+		c.init(Cipher.ENCRYPT_MODE, getPublicKey());
 
 		// Obtain the file to ciphe
 		FileInputStream inFile = new FileInputStream(file.getAbsolutePath());
-		FileOutputStream outFile = new FileOutputStream(file.getAbsolutePath().substring(0, file.getAbsolutePath().length() - 4) + ".cif");
+		FileOutputStream outFile = new FileOutputStream(
+				file.getAbsolutePath().substring(0, file.getAbsolutePath().length() - 4) + ".cif");
 
 		Header header = new Header(Options.OP_PUBLIC_CIPHER, alg1, alg2, data);
 		header.save(outFile);
@@ -247,7 +233,7 @@ public class DigitalSignature {
 		inFile.close();
 	}
 
-	public static void keyDecipher(File file) throws Exception {
+	public void keyDecipher(File file) throws Exception {
 
 		FileInputStream inFile = new FileInputStream(file.getAbsolutePath());
 		FileOutputStream outFile = new FileOutputStream(
@@ -259,7 +245,7 @@ public class DigitalSignature {
 		// Getting the instance
 		Cipher c = Cipher.getInstance(header.getAlgorithm1());
 		// Initiation for decryption with private key
-		c.init(c.DECRYPT_MODE, getPrivateKey());
+		c.init(Cipher.DECRYPT_MODE, getPrivateKey());
 
 		// Deciphe each block
 		int blockSize = 64;

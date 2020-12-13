@@ -1,4 +1,5 @@
 package gui.digitalSignature;
+
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -9,17 +10,15 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
+import functions.DigitalSignature;
 import gui.MainMenu;
 
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
-
-import functions.DigitalSignature;
 /*
  * Developed by:
  * 
@@ -31,14 +30,13 @@ import functions.DigitalSignature;
 
 public class KeyCipheUI extends JDialog {
 
-
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1182454551418726828L;
-	
-	private static final Dimension MIN_SIZE = new Dimension(300, 250);
-	private static final Dimension DEFAULT_SIZE = new Dimension(500, 300);
+	private static final long serialVersionUID = 5723206829220885984L;
+
+	private static final Dimension MIN_SIZE = new Dimension(400, 140);
+	private static final Dimension DEFAULT_SIZE = new Dimension(500, 180);
 
 	MainMenu parentUI;
 	DigitalSignature ds;
@@ -46,21 +44,16 @@ public class KeyCipheUI extends JDialog {
 	private Boolean opSuccessfull; // bool to determine if an operation was sucessfully executed
 
 	private JLabel rootLabel;
-	private JLabel hashLabel;
 	private JLabel statusLabel;
-	private JLabel pwLabel;
 	private JTextField rootTextField;
 	private JButton rootButton;
 	private JButton acceptButton;
 	private JButton backButton;
 
-	private JScrollPane hashPane;
-	private JTextArea hashResultArea;
-
 	private File rootPath;
 
-	public KeyCipheUI(MainMenu parentUI) {
-		this.parentUI = parentUI; // Get the instance of the parentUI to be able to return to the previous window
+	public KeyCipheUI(MainMenu mainMenu) {
+		this.parentUI = mainMenu; // Get the instance of the parentUI to be able to return to the previous window
 		this.setModalityType(ModalityType.APPLICATION_MODAL); // Make lower level windows to have blocked inputs 
 		initComponents();
 		initLayout();
@@ -72,34 +65,25 @@ public class KeyCipheUI extends JDialog {
 	 */
 	private void initComponents() {
 
-
-		ds= new DigitalSignature();
+		ds = new DigitalSignature();
 		
 		opSuccessfull = false;
 
 		rootLabel = new JLabel();
-		hashLabel = new JLabel();
 		statusLabel = new JLabel();
-		pwLabel = new JLabel();
 
 		rootTextField = new JTextField();
-
+		
 		rootButton = new JButton();
 		acceptButton = new JButton();
 		backButton = new JButton();
 
-		hashResultArea = new JTextArea(6, 50);
-		hashPane = new JScrollPane(hashResultArea);
-
 		rootLabel.setText("Ruta de fichero:");
-		hashLabel.setText("Resultado");
 		rootButton.setText("…");
-		acceptButton.setText("Firmar");
+		acceptButton.setText("Cifrar");
 		backButton.setText("Volver");
-		pwLabel.setText("Contraseña:");
 
 		rootTextField.setEditable(false);
-		hashResultArea.setEditable(false);
 		// Remove the ugly text boundary box when clicking the button
 		rootButton.setFocusable(false);
 		acceptButton.setFocusable(false);
@@ -113,6 +97,7 @@ public class KeyCipheUI extends JDialog {
 			}
 		});
 
+		acceptButton.addActionListener(this::startCiphe);
 		backButton.addActionListener(this::goBackUI);
 	}
 
@@ -128,9 +113,9 @@ public class KeyCipheUI extends JDialog {
 				.addGroup(layout.createParallelGroup()
 						.addGroup(layout.createSequentialGroup().addComponent(rootLabel)
 								.addPreferredGap(ComponentPlacement.RELATED).addComponent(rootTextField)
-								.addPreferredGap(ComponentPlacement.RELATED).addComponent(rootButton)
-								.addPreferredGap(ComponentPlacement.RELATED).addComponent(acceptButton))
-						.addComponent(hashLabel).addComponent(hashPane).addComponent(backButton)
+								.addPreferredGap(ComponentPlacement.RELATED).addComponent(rootButton))
+						.addGroup(layout.createSequentialGroup().addComponent(acceptButton))
+						.addComponent(backButton)
 						.addComponent(statusLabel))
 				.addContainerGap());
 
@@ -138,30 +123,31 @@ public class KeyCipheUI extends JDialog {
 		layout.setVerticalGroup(layout.createSequentialGroup().addContainerGap()
 				.addGroup(layout.createParallelGroup().addComponent(rootLabel).addComponent(rootTextField)
 						.addComponent(rootButton))
-				.addPreferredGap(ComponentPlacement.RELATED).addPreferredGap(ComponentPlacement.RELATED)
-				.addPreferredGap(ComponentPlacement.RELATED).addComponent(hashLabel)
-				.addPreferredGap(ComponentPlacement.RELATED).addComponent(hashPane)
 				.addPreferredGap(ComponentPlacement.RELATED)
+				.addGroup(layout.createParallelGroup())
+				.addPreferredGap(ComponentPlacement.RELATED)
+				.addPreferredGap(ComponentPlacement.RELATED)
+				.addComponent(backButton)
 				.addGroup(layout.createParallelGroup().addComponent(acceptButton).addComponent(backButton))
 				.addPreferredGap(ComponentPlacement.RELATED).addPreferredGap(ComponentPlacement.RELATED)
 				.addComponent(statusLabel).addContainerGap());
 
 		// Link size of labels
-		layout.linkSize(SwingConstants.HORIZONTAL, rootLabel, pwLabel);
+		layout.linkSize(SwingConstants.HORIZONTAL, rootLabel);
 	}
 
 	/*
 	 * Set the last parameters of the main window
 	 */
 	private void finishGui() {
+		setTitle("Cifrador 2020 SRT - Firma digital");
 		pack();
-		setTitle("Cifrador 2020 SRT - Cifrado con clave");
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setMinimumSize(MIN_SIZE);
 		setSize(DEFAULT_SIZE);
 
 		setVisible(true);
-		updateStatus("Preparado para cifrar con clave.");
+		updateStatus("Preparado para la firma digital.");
 	}
 
 	/*
@@ -187,7 +173,40 @@ public class KeyCipheUI extends JDialog {
 		}
 	}
 
+	/*
+	 * 
+	 */
+	private void startCiphe(ActionEvent event) {
+
+		if (rootPath != null) {
+
+			updateStatus("Cifrando con clave. ");
+
+			opSuccessfull = true;
+
+			try {
+				ds.keyCipher(rootPath);
+			} catch (Exception e) {
+				e.printStackTrace();
+				opSuccessfull = false;
+			}
+
+			if (opSuccessfull) {
+
+				JOptionPane.showMessageDialog(this, "El fichero ha sido cifrado."); // Tell the user
+				updateStatus("Fichero cifrado correctamente.");
+			} else {
+				JOptionPane.showMessageDialog(this, "Se ha producido un error al cifrar.");
+				updateStatus("ERROR : No se ha podido cifrar el fichero.");
+			}
+
+		} else {
+			JOptionPane.showMessageDialog(this, "ERROR : No se ha seleccionado ningún fichero.");
+			updateStatus("ERROR : No se ha seleccionado ningún fichero.");
+		}
+	}
 	
+
 	/*
 	 * Update the status label at the bottom
 	 */

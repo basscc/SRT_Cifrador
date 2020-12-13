@@ -1,4 +1,5 @@
 package gui.digitalSignature;
+
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -9,12 +10,11 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
-import javax.swing.JPasswordField;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
+import functions.DigitalSignature;
 import gui.MainMenu;
 
 import javax.swing.SwingConstants;
@@ -33,32 +33,28 @@ public class VerifySignUI extends JDialog {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -6870296356192705841L;
-	
-	private static final Dimension MIN_SIZE = new Dimension(300, 250);
-	private static final Dimension DEFAULT_SIZE = new Dimension(500, 300);
+	private static final long serialVersionUID = 5723206829220885984L;
+
+	private static final Dimension MIN_SIZE = new Dimension(400, 140);
+	private static final Dimension DEFAULT_SIZE = new Dimension(500, 180);
 
 	MainMenu parentUI;
+	DigitalSignature ds;
 
 	private Boolean opSuccessfull; // bool to determine if an operation was sucessfully executed
 
 	private JLabel rootLabel;
-	private JLabel hashLabel;
 	private JLabel statusLabel;
-	private JLabel pwLabel;
 	private JTextField rootTextField;
-	private JPasswordField passwordField;
 	private JButton rootButton;
 	private JButton acceptButton;
 	private JButton backButton;
-
-	private JScrollPane hashPane;
-	private JTextArea hashResultArea;
 
 	private File rootPath;
 
 	public VerifySignUI(MainMenu mainMenu) {
 		this.parentUI = mainMenu; // Get the instance of the parentUI to be able to return to the previous window
+		this.setModalityType(ModalityType.APPLICATION_MODAL); // Make lower level windows to have blocked inputs 
 		initComponents();
 		initLayout();
 		finishGui();
@@ -69,39 +65,29 @@ public class VerifySignUI extends JDialog {
 	 */
 	private void initComponents() {
 
+		ds = new DigitalSignature();
 
 		opSuccessfull = false;
 
 		rootLabel = new JLabel();
-		hashLabel = new JLabel();
 		statusLabel = new JLabel();
-		pwLabel = new JLabel();
 
 		rootTextField = new JTextField();
-		passwordField = new JPasswordField();
-
+		
 		rootButton = new JButton();
 		acceptButton = new JButton();
 		backButton = new JButton();
 
-		hashResultArea = new JTextArea(6, 50);
-		hashPane = new JScrollPane(hashResultArea);
-
 		rootLabel.setText("Ruta de fichero:");
-		hashLabel.setText("Resultado");
 		rootButton.setText("…");
 		acceptButton.setText("Verificar");
 		backButton.setText("Volver");
-		pwLabel.setText("Contraseña:");
 
 		rootTextField.setEditable(false);
-		hashResultArea.setEditable(false);
 		// Remove the ugly text boundary box when clicking the button
 		rootButton.setFocusable(false);
 		acceptButton.setFocusable(false);
 		backButton.setFocusable(false);
-
-		passwordField.setEchoChar('*'); // Type * as the user writes in the component
 
 		rootButton.addActionListener(e -> {
 			try {
@@ -111,6 +97,7 @@ public class VerifySignUI extends JDialog {
 			}
 		});
 
+		acceptButton.addActionListener(this::startVerifying);
 		backButton.addActionListener(this::goBackUI);
 	}
 
@@ -127,10 +114,8 @@ public class VerifySignUI extends JDialog {
 						.addGroup(layout.createSequentialGroup().addComponent(rootLabel)
 								.addPreferredGap(ComponentPlacement.RELATED).addComponent(rootTextField)
 								.addPreferredGap(ComponentPlacement.RELATED).addComponent(rootButton))
-						.addGroup(layout.createSequentialGroup().addComponent(pwLabel)
-								.addPreferredGap(ComponentPlacement.RELATED).addComponent(passwordField)
-								.addPreferredGap(ComponentPlacement.RELATED).addComponent(acceptButton))
-						.addComponent(hashLabel).addComponent(hashPane).addComponent(backButton)
+						.addGroup(layout.createSequentialGroup().addComponent(acceptButton))
+						.addComponent(backButton)
 						.addComponent(statusLabel))
 				.addContainerGap());
 
@@ -138,31 +123,31 @@ public class VerifySignUI extends JDialog {
 		layout.setVerticalGroup(layout.createSequentialGroup().addContainerGap()
 				.addGroup(layout.createParallelGroup().addComponent(rootLabel).addComponent(rootTextField)
 						.addComponent(rootButton))
-				.addPreferredGap(ComponentPlacement.RELATED).addPreferredGap(ComponentPlacement.RELATED)
-				.addGroup(layout.createParallelGroup().addComponent(pwLabel).addComponent(passwordField))
-				.addPreferredGap(ComponentPlacement.RELATED).addComponent(hashLabel)
-				.addPreferredGap(ComponentPlacement.RELATED).addComponent(hashPane)
+				.addPreferredGap(ComponentPlacement.RELATED)
+				.addPreferredGap(ComponentPlacement.RELATED)
+				.addComponent(backButton)
+				.addPreferredGap(ComponentPlacement.RELATED)
 				.addPreferredGap(ComponentPlacement.RELATED)
 				.addGroup(layout.createParallelGroup().addComponent(acceptButton).addComponent(backButton))
 				.addPreferredGap(ComponentPlacement.RELATED).addPreferredGap(ComponentPlacement.RELATED)
 				.addComponent(statusLabel).addContainerGap());
 
 		// Link size of labels
-		layout.linkSize(SwingConstants.HORIZONTAL, rootLabel, pwLabel);
+		layout.linkSize(SwingConstants.HORIZONTAL, rootLabel);
 	}
 
 	/*
 	 * Set the last parameters of the main window
 	 */
 	private void finishGui() {
+		setTitle("Cifrador 2020 SRT - Firma digital");
 		pack();
-		setTitle("Cifrador 2020 SRT - Verificación de firma digital");
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setMinimumSize(MIN_SIZE);
 		setSize(DEFAULT_SIZE);
 
 		setVisible(true);
-		updateStatus("Preparado para verificar una firma digital.");
+		updateStatus("Preparado para la firma digital.");
 	}
 
 	/*
@@ -188,7 +173,39 @@ public class VerifySignUI extends JDialog {
 		}
 	}
 
+	/*
+	 * 
+	 */
+	private void startVerifying(ActionEvent event) {
+
+		if (rootPath != null) {
+
+			updateStatus("Verificando firma.");
+
+			opSuccessfull = true;
+			try {
+				ds.verifySign(rootPath);
+			} catch (Exception e) {
+				e.printStackTrace();
+				opSuccessfull=false;
+			}
+
+			if (opSuccessfull) { // If the file could be signed
+
+				JOptionPane.showMessageDialog(this, "El fichero ha sido verificado."); // Tell the user
+				updateStatus("Fichero verificado correctamente.");
+			} else {
+				JOptionPane.showMessageDialog(this, "Se ha producido un error al verificar.");
+				updateStatus("ERROR : No se ha podido verificar el fichero.");
+			}
+
+		} else {
+			JOptionPane.showMessageDialog(this, "ERROR : No se ha seleccionado ningún fichero.");
+			updateStatus("ERROR : No se ha seleccionado ningún fichero.");
+		}
+	}	
 	
+
 	/*
 	 * Update the status label at the bottom
 	 */

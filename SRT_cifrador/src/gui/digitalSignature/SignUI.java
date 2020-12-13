@@ -11,6 +11,7 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
@@ -35,8 +36,8 @@ public class SignUI extends JDialog {
 	 */
 	private static final long serialVersionUID = 5723206829220885984L;
 
-	private static final Dimension MIN_SIZE = new Dimension(400, 140);
-	private static final Dimension DEFAULT_SIZE = new Dimension(500, 180);
+	private static final Dimension MIN_SIZE = new Dimension(400, 130);
+	private static final Dimension DEFAULT_SIZE = new Dimension(500, 160);
 
 	MainMenu parentUI;
 	DigitalSignature ds;
@@ -56,7 +57,7 @@ public class SignUI extends JDialog {
 
 	public SignUI(MainMenu mainMenu) {
 		this.parentUI = mainMenu; // Get the instance of the parentUI to be able to return to the previous window
-		this.setModalityType(ModalityType.APPLICATION_MODAL); // Make lower level windows to have blocked inputs 
+		this.setModalityType(ModalityType.APPLICATION_MODAL); // Make lower level windows to have blocked inputs
 		initComponents();
 		initLayout();
 		finishGui();
@@ -68,7 +69,7 @@ public class SignUI extends JDialog {
 	private void initComponents() {
 
 		ds = new DigitalSignature();
-		String[] signatures = { "Prueba 1", "Prueba 2" };
+		String[] signatures = { "SHA1withRSA", "MD2withRSA", "MD5withRSA" };
 
 		opSuccessfull = false;
 
@@ -77,7 +78,7 @@ public class SignUI extends JDialog {
 		statusLabel = new JLabel();
 
 		rootTextField = new JTextField();
-		
+
 		signComboBox = new JComboBox<String>(signatures);
 
 		rootButton = new JButton();
@@ -85,7 +86,7 @@ public class SignUI extends JDialog {
 		backButton = new JButton();
 
 		rootLabel.setText("Ruta de fichero:");
-		signLabel.setText("Eliga la firma:" );
+		signLabel.setText("Eliga la firma:");
 		rootButton.setText("…");
 		acceptButton.setText("Firmar");
 		backButton.setText("Volver");
@@ -124,8 +125,7 @@ public class SignUI extends JDialog {
 						.addGroup(layout.createSequentialGroup().addComponent(signLabel)
 								.addPreferredGap(ComponentPlacement.RELATED).addComponent(signComboBox)
 								.addPreferredGap(ComponentPlacement.RELATED).addComponent(acceptButton))
-						.addComponent(backButton)
-						.addComponent(statusLabel))
+						.addComponent(backButton).addComponent(statusLabel))
 				.addContainerGap());
 
 		// Vertical groups
@@ -134,8 +134,7 @@ public class SignUI extends JDialog {
 						.addComponent(rootButton))
 				.addPreferredGap(ComponentPlacement.RELATED)
 				.addGroup(layout.createParallelGroup().addComponent(signLabel).addComponent(signComboBox))
-				.addPreferredGap(ComponentPlacement.RELATED)
-				.addPreferredGap(ComponentPlacement.RELATED)
+				.addPreferredGap(ComponentPlacement.RELATED).addPreferredGap(ComponentPlacement.RELATED)
 				.addGroup(layout.createParallelGroup().addComponent(acceptButton).addComponent(backButton))
 				.addPreferredGap(ComponentPlacement.RELATED).addPreferredGap(ComponentPlacement.RELATED)
 				.addComponent(statusLabel).addContainerGap());
@@ -187,11 +186,34 @@ public class SignUI extends JDialog {
 	private void startSign(ActionEvent event) {
 
 		if (rootPath != null) {
+			
+			updateStatus("Firmando con algoritmo : " + signComboBox.getSelectedItem().toString());
 
+			opSuccessfull = true;
+
+			try {
+				ds.sign(rootPath, parseSignatureChosen(signComboBox.getSelectedIndex()));
+			} catch (Exception e) {
+				e.printStackTrace();
+				opSuccessfull = false;
+			}
+
+			if (opSuccessfull) { // If the file could be signed
+
+				JOptionPane.showMessageDialog(this, "El fichero ha sido firmado."); // Tell the user
+				updateStatus("Fichero firmado correctamente.");
+			} else {
+				JOptionPane.showMessageDialog(this, "Se ha producido un error al firmar.");
+				updateStatus("ERROR : No se ha podido firmar el fichero.");
+			}
+
+		} else {
+			JOptionPane.showMessageDialog(this, "ERROR : No se ha seleccionado ningún fichero.");
+			updateStatus("ERROR : No se ha seleccionado ningún fichero.");
 		}
 	}
-	
-	/* TODO
+
+	/*
 	 * Method to translate the drop down list into the exact algorithm name for
 	 * later calls
 	 */
@@ -202,15 +224,19 @@ public class SignUI extends JDialog {
 		switch (op) {
 
 		case 0:
-			chosen = "aa";
+			chosen = "SHA1withRSA";
 			break;
 
 		case 1:
-			chosen = "bb";
+			chosen = "MD2withRSA";
 			break;
-			
+
+		case 3:
+			chosen = "MD5withRSA";
+			break;
+
 		default:
-			chosen = "unodefault";
+			chosen = "SHA1withRSA";
 			break;
 		}
 
