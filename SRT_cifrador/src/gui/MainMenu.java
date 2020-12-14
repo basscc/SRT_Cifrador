@@ -64,11 +64,10 @@ public class MainMenu extends JFrame {
 
 		if (new File("prueba.key").exists()) {
 			areKeysGenerated = true;
-			System.out.println("Ya existe");
 		} else {
 			areKeysGenerated = false;
-			System.out.println("No existe");
 		}
+		
 		ds = new DigitalSignature();
 
 		welcomeLabel = new JLabel();
@@ -84,7 +83,7 @@ public class MainMenu extends JFrame {
 		keyDeCiphButton = new JButton();
 		genKeys = new JButton();
 
-		welcomeLabel.setText("<html>Bienvenido al cifrador de SRT<br/><br/>¿Qué operación desea realizar?</html>");
+		welcomeLabel.setText("<html>Bienvenido a la herramienta de SRT<br/><br/>¿Qué operación desea realizar?</html>");
 		welcomeLabel.setFont(new Font("", Font.ITALIC, 14));
 		dsLabel.setText("<html><b>Firma digital<b/></html>");
 		dsLabel.setFont(new Font("", Font.BOLD, 14));
@@ -172,6 +171,7 @@ public class MainMenu extends JFrame {
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setMinimumSize(MIN_SIZE);
 		setSize(DEFAULT_SIZE);
+		setLocationRelativeTo(null); // center the window on screen
 
 		setVisible(true);
 	}
@@ -207,57 +207,65 @@ public class MainMenu extends JFrame {
 
 		new VerifyHashUI(this);
 	}
+	
+	//
+	// DIGITAL SIGNATURE
+	//
 
 	/*
-	 * Go to the window
+	 * Check if keys are generated, then
+	 * Go to the Sign window
 	 */
 	private void signUI(ActionEvent event) {
 
 		if (areKeysGenerated) {
 			new SignUI(this);
 		} else {
-			JOptionPane.showMessageDialog(this, "ERROR: No se han generado las claves.");
+			JOptionPane.showMessageDialog(this, "No se han generado las claves.", "ERROR", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
 	/*
-	 * Go to the window
+	 * Check if keys are generated, then
+	 * Go to the VerifySign window
 	 */
 	private void verifySignUI(ActionEvent event) {
 
 		if (areKeysGenerated) {
 			new VerifySignUI(this);
 		} else {
-			JOptionPane.showMessageDialog(this, "ERROR: No se han generado las claves.");
+			JOptionPane.showMessageDialog(this, "No se han generado las claves.", "ERROR", JOptionPane.ERROR_MESSAGE);
 		}
 
 	}
 
 	/*
-	 * Go to the window
+	 * Check if keys are generated, then
+	 * Go to the KeyCipher window
 	 */
 	private void keyCipheUI(ActionEvent event) {
 
 		if (areKeysGenerated) {
 			new KeyCipheUI(this);
 		} else {
-			JOptionPane.showMessageDialog(this, "ERROR: No se han generado las claves.");
+			JOptionPane.showMessageDialog(this, "No se han generado las claves.", "ERROR", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
 	/*
-	 * Go to the window
+	 * Check if keys are generated, then
+	 * Go to the KeyDecipher window
 	 */
 	private void decipheUI(ActionEvent event) {
 		if (areKeysGenerated) {
 			new KeyDecipheUI(this);
 		} else {
-			JOptionPane.showMessageDialog(this, "ERROR: No se han generado las claves.");
+			JOptionPane.showMessageDialog(this, "No se han generado las claves.", "ERROR", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
 	/*
-	 * Go to the window
+	 * Attempt to generate keys for digital signature
 	 */
 	private void keyGeneration(ActionEvent event) {
 
@@ -271,7 +279,7 @@ public class MainMenu extends JFrame {
 		if (areKeysGenerated) {
 			JOptionPane.showMessageDialog(this, "Se han generado las claves.");
 		} else {
-			JOptionPane.showMessageDialog(this, "ERROR: No se han generado las claves.");
+			JOptionPane.showMessageDialog(this, "No se han generado las claves.", "ERROR", JOptionPane.ERROR_MESSAGE);
 		}
 
 	}

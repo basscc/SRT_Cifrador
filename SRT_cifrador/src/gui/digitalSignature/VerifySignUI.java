@@ -36,7 +36,7 @@ public class VerifySignUI extends JDialog {
 	private static final long serialVersionUID = 5723206829220885984L;
 
 	private static final Dimension MIN_SIZE = new Dimension(400, 140);
-	private static final Dimension DEFAULT_SIZE = new Dimension(500, 180);
+	private static final Dimension DEFAULT_SIZE = new Dimension(500, 160);
 
 	MainMenu parentUI;
 	DigitalSignature ds;
@@ -114,40 +114,41 @@ public class VerifySignUI extends JDialog {
 						.addGroup(layout.createSequentialGroup().addComponent(rootLabel)
 								.addPreferredGap(ComponentPlacement.RELATED).addComponent(rootTextField)
 								.addPreferredGap(ComponentPlacement.RELATED).addComponent(rootButton))
-						.addGroup(layout.createSequentialGroup().addComponent(acceptButton))
-						.addComponent(backButton)
+						.addGroup(layout.createSequentialGroup()
+								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+										.addComponent(backButton))
+								.addPreferredGap(ComponentPlacement.RELATED, 250, Short.MAX_VALUE)
+								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
+										.addComponent(acceptButton)))
 						.addComponent(statusLabel))
 				.addContainerGap());
-
+		
 		// Vertical groups
 		layout.setVerticalGroup(layout.createSequentialGroup().addContainerGap()
 				.addGroup(layout.createParallelGroup().addComponent(rootLabel).addComponent(rootTextField)
 						.addComponent(rootButton))
-				.addPreferredGap(ComponentPlacement.RELATED)
-				.addPreferredGap(ComponentPlacement.RELATED)
-				.addComponent(backButton)
-				.addPreferredGap(ComponentPlacement.RELATED)
-				.addPreferredGap(ComponentPlacement.RELATED)
+				.addPreferredGap(ComponentPlacement.RELATED, 15, 20)
 				.addGroup(layout.createParallelGroup().addComponent(acceptButton).addComponent(backButton))
-				.addPreferredGap(ComponentPlacement.RELATED).addPreferredGap(ComponentPlacement.RELATED)
-				.addComponent(statusLabel).addContainerGap());
+				.addPreferredGap(ComponentPlacement.RELATED)
+				.addPreferredGap(ComponentPlacement.RELATED).addComponent(statusLabel).addContainerGap());
 
 		// Link size of labels
-		layout.linkSize(SwingConstants.HORIZONTAL, rootLabel);
+		layout.linkSize(SwingConstants.VERTICAL, rootTextField, rootButton);
 	}
 
 	/*
 	 * Set the last parameters of the main window
 	 */
 	private void finishGui() {
-		setTitle("Cifrador 2020 SRT - Firma digital");
+		setTitle("Cifrador 2020 SRT - Verificar firma");
 		pack();
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setMinimumSize(MIN_SIZE);
 		setSize(DEFAULT_SIZE);
-
+		setLocationRelativeTo(null); // center the window on screen
+		
+		updateStatus("Preparado para verificar una firma digital.");
 		setVisible(true);
-		updateStatus("Preparado para la firma digital.");
 	}
 
 	/*
@@ -174,7 +175,7 @@ public class VerifySignUI extends JDialog {
 	}
 
 	/*
-	 * 
+	 * Method to initiate the signature verification process once the "accept" button is clicked
 	 */
 	private void startVerifying(ActionEvent event) {
 
@@ -192,15 +193,15 @@ public class VerifySignUI extends JDialog {
 
 			if (opSuccessfull) { // If the file could be signed
 
-				JOptionPane.showMessageDialog(this, "El fichero ha sido verificado."); // Tell the user
-				updateStatus("Fichero verificado correctamente.");
+				JOptionPane.showMessageDialog(this, "La firma del fichero ha sido verificada."); // Tell the user
+				updateStatus("Firma verificada correctamente.");
 			} else {
-				JOptionPane.showMessageDialog(this, "Se ha producido un error al verificar.");
+				JOptionPane.showMessageDialog(this, "Se ha producido un error al verificar la firma.", "ERROR", JOptionPane.ERROR_MESSAGE);
 				updateStatus("ERROR : No se ha podido verificar el fichero.");
 			}
 
 		} else {
-			JOptionPane.showMessageDialog(this, "ERROR : No se ha seleccionado ningún fichero.");
+			JOptionPane.showMessageDialog(this, "No se ha seleccionado ningún fichero.", "ERROR", JOptionPane.ERROR_MESSAGE);
 			updateStatus("ERROR : No se ha seleccionado ningún fichero.");
 		}
 	}	

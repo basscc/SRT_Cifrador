@@ -36,7 +36,7 @@ public class KeyDecipheUI extends JDialog {
 	private static final long serialVersionUID = 5723206829220885984L;
 
 	private static final Dimension MIN_SIZE = new Dimension(400, 140);
-	private static final Dimension DEFAULT_SIZE = new Dimension(500, 180);
+	private static final Dimension DEFAULT_SIZE = new Dimension(500, 160);
 
 	MainMenu parentUI;
 	DigitalSignature ds;
@@ -114,8 +114,12 @@ public class KeyDecipheUI extends JDialog {
 						.addGroup(layout.createSequentialGroup().addComponent(rootLabel)
 								.addPreferredGap(ComponentPlacement.RELATED).addComponent(rootTextField)
 								.addPreferredGap(ComponentPlacement.RELATED).addComponent(rootButton))
-						.addGroup(layout.createSequentialGroup().addComponent(acceptButton))
-						.addComponent(backButton)
+						.addGroup(layout.createSequentialGroup()
+								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+										.addComponent(backButton))
+								.addPreferredGap(ComponentPlacement.RELATED, 250, Short.MAX_VALUE)
+								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
+										.addComponent(acceptButton)))
 						.addComponent(statusLabel))
 				.addContainerGap());
 
@@ -123,30 +127,28 @@ public class KeyDecipheUI extends JDialog {
 		layout.setVerticalGroup(layout.createSequentialGroup().addContainerGap()
 				.addGroup(layout.createParallelGroup().addComponent(rootLabel).addComponent(rootTextField)
 						.addComponent(rootButton))
-				.addPreferredGap(ComponentPlacement.RELATED)
-				.addPreferredGap(ComponentPlacement.RELATED)
-				.addPreferredGap(ComponentPlacement.RELATED)
-				.addComponent(backButton)
+				.addPreferredGap(ComponentPlacement.RELATED, 15, 20)
 				.addGroup(layout.createParallelGroup().addComponent(acceptButton).addComponent(backButton))
-				.addPreferredGap(ComponentPlacement.RELATED).addPreferredGap(ComponentPlacement.RELATED)
-				.addComponent(statusLabel).addContainerGap());
+				.addPreferredGap(ComponentPlacement.RELATED)
+				.addPreferredGap(ComponentPlacement.RELATED).addComponent(statusLabel).addContainerGap());
 
 		// Link size of labels
-		layout.linkSize(SwingConstants.HORIZONTAL, rootLabel);
+		layout.linkSize(SwingConstants.VERTICAL, rootTextField, rootButton);
 	}
 
 	/*
 	 * Set the last parameters of the main window
 	 */
 	private void finishGui() {
-		setTitle("Cifrador 2020 SRT - Firma digital");
+		setTitle("Cifrador 2020 SRT - Descifrar con clave");
 		pack();
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setMinimumSize(MIN_SIZE);
 		setSize(DEFAULT_SIZE);
+		setLocationRelativeTo(null); // center the window on screen
 
+		updateStatus("Preparado para descifrar con clave.");
 		setVisible(true);
-		updateStatus("Preparado para la firma digital.");
 	}
 
 	/*
@@ -173,7 +175,7 @@ public class KeyDecipheUI extends JDialog {
 	}
 
 	/*
-	 * 
+	 * Method to initiate the key deciphering process once the "accept" button is clicked
 	 */
 	private void startDeciphe(ActionEvent event) {
 
@@ -195,12 +197,12 @@ public class KeyDecipheUI extends JDialog {
 				JOptionPane.showMessageDialog(this, "El fichero ha sido descifrado."); // Tell the user
 				updateStatus("Fichero descifrado correctamente.");
 			} else {
-				JOptionPane.showMessageDialog(this, "Se ha producido un error al descifrar.");
+				JOptionPane.showMessageDialog(this, "Se ha producido un error al descifrar.", "ERROR", JOptionPane.ERROR_MESSAGE);
 				updateStatus("ERROR : No se ha podido descifrar el fichero.");
 			}
 
 		} else {
-			JOptionPane.showMessageDialog(this, "ERROR : No se ha seleccionado ningún fichero.");
+			JOptionPane.showMessageDialog(this, "No se ha seleccionado ningún fichero.", "ERROR", JOptionPane.ERROR_MESSAGE);
 			updateStatus("ERROR : No se ha seleccionado ningún fichero.");
 		}
 	}

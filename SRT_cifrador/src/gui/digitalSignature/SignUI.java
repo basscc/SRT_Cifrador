@@ -36,8 +36,8 @@ public class SignUI extends JDialog {
 	 */
 	private static final long serialVersionUID = 5723206829220885984L;
 
-	private static final Dimension MIN_SIZE = new Dimension(400, 130);
-	private static final Dimension DEFAULT_SIZE = new Dimension(500, 160);
+	private static final Dimension MIN_SIZE = new Dimension(400, 160);
+	private static final Dimension DEFAULT_SIZE = new Dimension(500, 180);
 
 	MainMenu parentUI;
 	DigitalSignature ds;
@@ -134,7 +134,7 @@ public class SignUI extends JDialog {
 						.addComponent(rootButton))
 				.addPreferredGap(ComponentPlacement.RELATED)
 				.addGroup(layout.createParallelGroup().addComponent(signLabel).addComponent(signComboBox))
-				.addPreferredGap(ComponentPlacement.RELATED).addPreferredGap(ComponentPlacement.RELATED)
+				.addPreferredGap(ComponentPlacement.RELATED, 15, 20)
 				.addGroup(layout.createParallelGroup().addComponent(acceptButton).addComponent(backButton))
 				.addPreferredGap(ComponentPlacement.RELATED).addPreferredGap(ComponentPlacement.RELATED)
 				.addComponent(statusLabel).addContainerGap());
@@ -152,9 +152,10 @@ public class SignUI extends JDialog {
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setMinimumSize(MIN_SIZE);
 		setSize(DEFAULT_SIZE);
+		setLocationRelativeTo(null); // center the window on screen
 
-		setVisible(true);
 		updateStatus("Preparado para la firma digital.");
+		setVisible(true);
 	}
 
 	/*
@@ -181,7 +182,7 @@ public class SignUI extends JDialog {
 	}
 
 	/*
-	 * 
+	 * Method to initiate the signature process once the "accept" button is clicked
 	 */
 	private void startSign(ActionEvent event) {
 
@@ -203,12 +204,12 @@ public class SignUI extends JDialog {
 				JOptionPane.showMessageDialog(this, "El fichero ha sido firmado."); // Tell the user
 				updateStatus("Fichero firmado correctamente.");
 			} else {
-				JOptionPane.showMessageDialog(this, "Se ha producido un error al firmar.");
+				JOptionPane.showMessageDialog(this, "Se ha producido un error al firmar.", "ERROR", JOptionPane.ERROR_MESSAGE);
 				updateStatus("ERROR : No se ha podido firmar el fichero.");
 			}
 
 		} else {
-			JOptionPane.showMessageDialog(this, "ERROR : No se ha seleccionado ningún fichero.");
+			JOptionPane.showMessageDialog(this, "No se ha seleccionado ningún fichero.", "ERROR", JOptionPane.ERROR_MESSAGE);
 			updateStatus("ERROR : No se ha seleccionado ningún fichero.");
 		}
 	}

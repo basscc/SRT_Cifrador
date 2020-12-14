@@ -177,9 +177,10 @@ public class DecryptionUI extends JDialog {
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setMinimumSize(MIN_SIZE);
 		setSize(DEFAULT_SIZE);
+		setLocationRelativeTo(null); // center the window on screen
 
-		setVisible(true);
 		updateStatus("Preparado para verificar.");
+		setVisible(true);	
 	}
 
 	/*
@@ -239,6 +240,9 @@ public class DecryptionUI extends JDialog {
 		fileReader.close();
 	}
 
+	/*
+	 * Method to initiate the deciphering process once the "accept" button is clicked
+	 */
 	private void startDecryption(ActionEvent event) {
 
 		if (rootPath != null) {
@@ -265,18 +269,16 @@ public class DecryptionUI extends JDialog {
 					
 					JOptionPane.showMessageDialog(this, "El fichero ha sido descifrado."); // Tell the user
 					updateStatus("Fichero descifrado correctamente.");
-				}
-				else {
-					JOptionPane.showMessageDialog(this, "Se ha producido un error al descifrar.");
+				} else {
+					JOptionPane.showMessageDialog(this, "Se ha producido un error al descifrar.", "ERROR", JOptionPane.ERROR_MESSAGE);
 					updateStatus("ERROR : Se ha producido un error al descifrar.");
 				}
-
 			} else {
-				JOptionPane.showMessageDialog(this, "ERROR : No se ha insertado ninguna contraseña.");
+				JOptionPane.showMessageDialog(this, "No se ha insertado ninguna contraseña.", "ERROR", JOptionPane.ERROR_MESSAGE);
 				updateStatus("ERROR : No se ha insertado ninguna contraseña.");
 			}
 		} else {
-			JOptionPane.showMessageDialog(this, "ERROR : No se ha seleccionado ningún fichero.");
+			JOptionPane.showMessageDialog(this, "No se ha seleccionado ningún fichero.", "ERROR", JOptionPane.ERROR_MESSAGE);
 			updateStatus("ERROR : No se ha seleccionado ningún fichero.");
 		}
 	}

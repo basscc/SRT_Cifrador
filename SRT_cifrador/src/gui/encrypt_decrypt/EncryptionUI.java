@@ -190,9 +190,10 @@ public class EncryptionUI extends JDialog {
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setMinimumSize(MIN_SIZE);
 		setSize(DEFAULT_SIZE);
+		setLocationRelativeTo(null); // center the window on screen
 
-		setVisible(true);
 		updateStatus("Preparado para encriptar.");
+		setVisible(true);
 	}
 
 	/*
@@ -252,7 +253,7 @@ public class EncryptionUI extends JDialog {
 	}
 
 	/*
-	 * Method to initiate the cyphering process once the "accept" button is clicked
+	 * Method to initiate the ciphering process once the "accept" button is clicked
 	 */
 	private void startEncryption(ActionEvent event) {
 
@@ -282,18 +283,17 @@ public class EncryptionUI extends JDialog {
 					
 					JOptionPane.showMessageDialog(this, "El fichero ha sido cifrado."); // Tell the user
 					updateStatus("Fichero cifrado correctamente.");
-				}
-				else{
-					JOptionPane.showMessageDialog(this, "Se ha producido un error al cifrar.");
+				} else{
+					JOptionPane.showMessageDialog(this, "Se ha producido un error al cifrar.", "ERROR", JOptionPane.ERROR_MESSAGE);
 					updateStatus("ERROR : No se ha podido cifrar el fichero.");
 				}
 
 			} else {
-				JOptionPane.showMessageDialog(this, "ERROR : No se ha insertado ninguna contraseña.");
+				JOptionPane.showMessageDialog(this, "No se ha insertado ninguna contraseña.", "ERROR", JOptionPane.ERROR_MESSAGE);
 				updateStatus("ERROR : No se ha insertado ninguna contraseña.");
 			}
 		} else {
-			JOptionPane.showMessageDialog(this, "ERROR : No se ha seleccionado ningún fichero.");
+			JOptionPane.showMessageDialog(this, "No se ha seleccionado ningún fichero.", "ERROR", JOptionPane.ERROR_MESSAGE);
 			updateStatus("ERROR : No se ha seleccionado ningún fichero.");
 		}
 	}

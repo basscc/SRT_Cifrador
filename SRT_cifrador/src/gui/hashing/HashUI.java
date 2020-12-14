@@ -179,9 +179,10 @@ public class HashUI extends JDialog {
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setMinimumSize(MIN_SIZE);
 		setSize(DEFAULT_SIZE);
+		setLocationRelativeTo(null); // center the window on screen
 
-		setVisible(true);
 		updateStatus("Preparado para crear el hash.");
+		setVisible(true);
 	}
 
 	/*
@@ -232,7 +233,7 @@ public class HashUI extends JDialog {
 	}
 	
 	/*
-	 * Method to start the process of Hashing and handling different errors.
+	 * Method to initiate the hashing process once the "accept" button is clicked
 	 */
 	private void startHash(ActionEvent event) {
 
@@ -258,16 +259,16 @@ public class HashUI extends JDialog {
 					updateStatus("Se ha creado el hash correctamente.");
 					
 				} else {
-					JOptionPane.showMessageDialog(this, "Se ha producido un error al crear el hash.");
+					JOptionPane.showMessageDialog(this, "Se ha producido un error al crear el hash.", "ERROR", JOptionPane.ERROR_MESSAGE);
 					updateStatus("ERROR : No se ha podido crear el hash.");
 				}
 
 			} else {
-				JOptionPane.showMessageDialog(this, "ERROR : No se ha insertado ninguna contraseña.");
+				JOptionPane.showMessageDialog(this, "No se ha insertado ninguna contraseña.", "ERROR", JOptionPane.ERROR_MESSAGE);
 				updateStatus("ERROR : No se ha insertado ninguna contraseña.");
 			}
 		} else {
-			JOptionPane.showMessageDialog(this, "ERROR : No se ha seleccionado ningún fichero.");
+			JOptionPane.showMessageDialog(this, "No se ha seleccionado ningún fichero.", "ERROR", JOptionPane.ERROR_MESSAGE);
 			updateStatus("ERROR : No se ha seleccionado ningún fichero.");
 		}
 	}
