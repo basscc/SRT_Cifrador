@@ -70,7 +70,6 @@ public class Cypher {
 		byte[] block = new byte[16];
 		while ((isEmpty = fileIN.read(block)) != -1) {
 			cOut.write(block, 0, isEmpty);
-			// TODO BORRAR System.out.println("encrypted: " + Hex.toHexString(block));
 		}
 		cOut.close();
 		fileIN.close();
