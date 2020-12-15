@@ -1,4 +1,4 @@
-package gui;
+package gui.hashing;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -6,8 +6,8 @@ import java.io.IOException;
 
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
@@ -17,6 +17,7 @@ import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
 import functions.Hash;
+import gui.MainMenu;
 
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
@@ -29,15 +30,15 @@ import javax.swing.WindowConstants;
  * UNEX - 2020 - SRT
  */
 
-public class VerifyHashUI extends JFrame {
+public class VerifyHashUI extends JDialog {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -7155697168794874224L;
 
-	private static final Dimension MIN_SIZE = new Dimension(300, 250);
-	private static final Dimension DEFAULT_SIZE = new Dimension(500, 300);
+	private static final Dimension MIN_SIZE = new Dimension(300, 280);
+	private static final Dimension DEFAULT_SIZE = new Dimension(500, 320);
 
 	MainMenu parentUI;
 	Hash hash;
@@ -61,6 +62,7 @@ public class VerifyHashUI extends JFrame {
 
 	public VerifyHashUI(MainMenu parentUI) {
 		this.parentUI = parentUI; // Get the instance of the parentUI to be able to return to the previous window
+		this.setModalityType(ModalityType.APPLICATION_MODAL); // Make lower level windows to have blocked inputs 
 		initComponents();
 		initLayout();
 		finishGui();
@@ -161,12 +163,13 @@ public class VerifyHashUI extends JFrame {
 	private void finishGui() {
 		pack();
 		setTitle("Cifrador 2020 SRT - Verificación de Hash");
-		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setMinimumSize(MIN_SIZE);
 		setSize(DEFAULT_SIZE);
+		setLocationRelativeTo(null); // center the window on screen
 
-		setVisible(true);
 		updateStatus("Preparado para verificar un hash.");
+		setVisible(true);
 	}
 
 	/*
@@ -175,7 +178,6 @@ public class VerifyHashUI extends JFrame {
 	private void goBackUI(ActionEvent event) {
 
 		parentUI.setVisible(true); // Make the main menu visible again
-		setVisible(false); // Hide this window
 		dispose(); // Remove this window
 	}
 
@@ -231,8 +233,7 @@ public class VerifyHashUI extends JFrame {
 	}
 
 	/*
-	 * Method to start the process of Hash verification and handling different
-	 * errors.
+	 * Method to start the process of Hash verification 
 	 */
 	private void startVerifying(ActionEvent event) {
 
@@ -257,21 +258,20 @@ public class VerifyHashUI extends JFrame {
 						JOptionPane.showMessageDialog(this, "CORRECTO : El hash calculado concuerda con el fichero."); // Tell the user															// user
 						updateStatus("CORRECTO : Fichero verificado correctamente.");
 					} else { // If the hash is different
-						JOptionPane.showMessageDialog(this, "AVISO : El hash del fichero no concuerda."); 
+						JOptionPane.showMessageDialog(this, "El hash del fichero no concuerda.", "ADVERTENCIA", JOptionPane.WARNING_MESSAGE);
 						updateStatus("AVISO : Hash incorrecto.");
 					}
-
 				} else {
-					JOptionPane.showMessageDialog(this, "ERROR : La verificación del fichero ha fallado.");
+					JOptionPane.showMessageDialog(this, "La verificación del fichero ha fallado.", "ERROR", JOptionPane.ERROR_MESSAGE);
 					updateStatus("ERROR : La verificación del fichero ha fallado.");
 				}
 
 			} else {
-				JOptionPane.showMessageDialog(this, "ERROR : No se ha insertado ninguna contraseña.");
+				JOptionPane.showMessageDialog(this, "No se ha insertado ninguna contraseña.", "ERROR", JOptionPane.ERROR_MESSAGE);
 				updateStatus("ERROR : No se ha insertado ninguna contraseña.");
 			}
 		} else {
-			JOptionPane.showMessageDialog(this, "ERROR : No se ha seleccionado ningún fichero.");
+			JOptionPane.showMessageDialog(this, "No se ha seleccionado ningún fichero.", "ERROR", JOptionPane.ERROR_MESSAGE);
 			updateStatus("ERROR : No se ha seleccionado ningún fichero.");
 		}
 

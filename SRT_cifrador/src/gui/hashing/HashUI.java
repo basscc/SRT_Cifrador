@@ -1,4 +1,4 @@
-package gui;
+package gui.hashing;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -7,8 +7,8 @@ import java.io.IOException;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
@@ -18,6 +18,7 @@ import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
 import functions.Hash;
+import gui.MainMenu;
 
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
@@ -30,7 +31,7 @@ import javax.swing.WindowConstants;
  * UNEX - 2020 - SRT
  */
 
-public class HashUI extends JFrame {
+public class HashUI extends JDialog {
 
 	/**
 	 * 
@@ -64,6 +65,7 @@ public class HashUI extends JFrame {
 
 	public HashUI(MainMenu parentUI) {
 		this.parentUI = parentUI; // Get the instance of the parentUI to be able to return to the previous window
+		this.setModalityType(ModalityType.APPLICATION_MODAL); // Make lower level windows to have blocked inputs 
 		initComponents();
 		initLayout();
 		finishGui();
@@ -174,12 +176,13 @@ public class HashUI extends JFrame {
 	private void finishGui() {
 		pack();
 		setTitle("Cifrador 2020 SRT - Crear Hash");
-		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setMinimumSize(MIN_SIZE);
 		setSize(DEFAULT_SIZE);
+		setLocationRelativeTo(null); // center the window on screen
 
-		setVisible(true);
 		updateStatus("Preparado para crear el hash.");
+		setVisible(true);
 	}
 
 	/*
@@ -188,7 +191,6 @@ public class HashUI extends JFrame {
 	private void goBackUI(ActionEvent event) {
 
 		parentUI.setVisible(true); // Make the main menu visible again
-		setVisible(false); // Hide this window
 		dispose(); // Remove this window
 	}
 
@@ -231,7 +233,7 @@ public class HashUI extends JFrame {
 	}
 	
 	/*
-	 * Method to start the process of Hashing and handling different errors.
+	 * Method to initiate the hashing process once the "accept" button is clicked
 	 */
 	private void startHash(ActionEvent event) {
 
@@ -257,16 +259,16 @@ public class HashUI extends JFrame {
 					updateStatus("Se ha creado el hash correctamente.");
 					
 				} else {
-					JOptionPane.showMessageDialog(this, "Se ha producido un error al crear el hash.");
+					JOptionPane.showMessageDialog(this, "Se ha producido un error al crear el hash.", "ERROR", JOptionPane.ERROR_MESSAGE);
 					updateStatus("ERROR : No se ha podido crear el hash.");
 				}
 
 			} else {
-				JOptionPane.showMessageDialog(this, "ERROR : No se ha insertado ninguna contraseña.");
+				JOptionPane.showMessageDialog(this, "No se ha insertado ninguna contraseña.", "ERROR", JOptionPane.ERROR_MESSAGE);
 				updateStatus("ERROR : No se ha insertado ninguna contraseña.");
 			}
 		} else {
-			JOptionPane.showMessageDialog(this, "ERROR : No se ha seleccionado ningún fichero.");
+			JOptionPane.showMessageDialog(this, "No se ha seleccionado ningún fichero.", "ERROR", JOptionPane.ERROR_MESSAGE);
 			updateStatus("ERROR : No se ha seleccionado ningún fichero.");
 		}
 	}

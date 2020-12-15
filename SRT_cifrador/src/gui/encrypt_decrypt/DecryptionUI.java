@@ -1,4 +1,4 @@
-package gui;
+package gui.encrypt_decrypt;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -7,8 +7,8 @@ import java.io.IOException;
 
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
@@ -18,6 +18,7 @@ import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
 import functions.Cypher;
+import gui.MainMenu;
 
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
@@ -30,7 +31,7 @@ import javax.swing.WindowConstants;
  * UNEX - 2020 - SRT
  */
 
-public class DecryptionUI extends JFrame {
+public class DecryptionUI extends JDialog {
 
 	/**
 	 * 
@@ -65,6 +66,7 @@ public class DecryptionUI extends JFrame {
 
 	public DecryptionUI(MainMenu parentUI) {
 		this.parentUI = parentUI; // Get the instance of the parentUI to be able to return to the previous window
+		this.setModalityType(ModalityType.APPLICATION_MODAL); // Make lower level windows to have blocked inputs 
 		initComponents();
 		initLayout();
 		finishGui();
@@ -159,7 +161,7 @@ public class DecryptionUI extends JFrame {
 				.addPreferredGap(ComponentPlacement.RELATED).addComponent(resultsPane)
 				.addPreferredGap(ComponentPlacement.RELATED)
 				.addGroup(layout.createParallelGroup().addComponent(acceptButton).addComponent(backButton))
-				.addPreferredGap(ComponentPlacement.RELATED).addPreferredGap(ComponentPlacement.RELATED)
+				.addPreferredGap(ComponentPlacement.RELATED)
 				.addComponent(statusLabel).addContainerGap());
 
 		// Link size of labels
@@ -171,13 +173,14 @@ public class DecryptionUI extends JFrame {
 	 */
 	private void finishGui() {
 		pack();
-		setTitle("Cifrador 2020 SRT - Verificar hash");
-		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		setTitle("Cifrador 2020 SRT - Desencriptar fichero");
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setMinimumSize(MIN_SIZE);
 		setSize(DEFAULT_SIZE);
+		setLocationRelativeTo(null); // center the window on screen
 
-		setVisible(true);
 		updateStatus("Preparado para verificar.");
+		setVisible(true);	
 	}
 
 	/*
@@ -186,7 +189,6 @@ public class DecryptionUI extends JFrame {
 	private void goBackUI(ActionEvent event) {
 
 		parentUI.setVisible(true); // Make the main menu visible again
-		setVisible(false); // Hide this window
 		dispose(); // Remove this window
 	}
 
@@ -238,6 +240,9 @@ public class DecryptionUI extends JFrame {
 		fileReader.close();
 	}
 
+	/*
+	 * Method to initiate the deciphering process once the "accept" button is clicked
+	 */
 	private void startDecryption(ActionEvent event) {
 
 		if (rootPath != null) {
@@ -264,18 +269,16 @@ public class DecryptionUI extends JFrame {
 					
 					JOptionPane.showMessageDialog(this, "El fichero ha sido descifrado."); // Tell the user
 					updateStatus("Fichero descifrado correctamente.");
-				}
-				else {
-					JOptionPane.showMessageDialog(this, "Se ha producido un error al descifrar.");
+				} else {
+					JOptionPane.showMessageDialog(this, "Se ha producido un error al descifrar.", "ERROR", JOptionPane.ERROR_MESSAGE);
 					updateStatus("ERROR : Se ha producido un error al descifrar.");
 				}
-
 			} else {
-				JOptionPane.showMessageDialog(this, "ERROR : No se ha insertado ninguna contraseña.");
+				JOptionPane.showMessageDialog(this, "No se ha insertado ninguna contraseña.", "ERROR", JOptionPane.ERROR_MESSAGE);
 				updateStatus("ERROR : No se ha insertado ninguna contraseña.");
 			}
 		} else {
-			JOptionPane.showMessageDialog(this, "ERROR : No se ha seleccionado ningún fichero.");
+			JOptionPane.showMessageDialog(this, "No se ha seleccionado ningún fichero.", "ERROR", JOptionPane.ERROR_MESSAGE);
 			updateStatus("ERROR : No se ha seleccionado ningún fichero.");
 		}
 	}

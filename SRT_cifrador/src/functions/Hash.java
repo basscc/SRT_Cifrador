@@ -35,7 +35,7 @@ public class Hash {
 
 	public Hash() {
 
-		this.itCount = 1;
+		this.itCount = 1024;
 		this.messageBytes = -1;
 		this.verified = false;
 		this.secretSeed = new byte[] {0x53, 0x45, 0x43, 0x52, 0x45, 0x54, 0x4f, 0x53};	
