@@ -62,7 +62,7 @@ public class MainMenu extends JFrame {
 	 */
 	private void initComponents() {
 
-		if (new File("prueba.key").exists()) {
+		if (new File("practica4.key").exists()) {
 			areKeysGenerated = true;
 		} else {
 			areKeysGenerated = false;

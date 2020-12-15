@@ -47,7 +47,11 @@ class Keys implements Serializable {
 public class DigitalSignature {
 	
 	static byte[] salt = new byte[] {0x53, 0x45, 0x43, 0x52, 0x45, 0x54, 0x4f, 0x53};
-
+	
+	/*
+	 * Method to generate a key ring for later use
+	 * in digital signature
+	 */
 	public void keyGeneration() throws NoSuchAlgorithmException, IOException {
 
 		// Getting instance for key pair generation
@@ -76,7 +80,7 @@ public class DigitalSignature {
 		byte[] bytes = bs.toByteArray();
 
 		// Generate output file
-		FileOutputStream outFile = new FileOutputStream("prueba.key");
+		FileOutputStream outFile = new FileOutputStream("practica4.key");
 		outFile.write(bytes);
 		
 		outFile.close();
@@ -88,7 +92,7 @@ public class DigitalSignature {
 		
 		try {
 			// Get file stream
-			FileInputStream inFile = new FileInputStream("prueba.key");
+			FileInputStream inFile = new FileInputStream("practica4.key");
 			int numBytes = inFile.available();
 			byte[] bytes = new byte[numBytes];
 			inFile.read(bytes);
@@ -115,7 +119,7 @@ public class DigitalSignature {
 		
 		try {
 			// Get file stream
-			FileInputStream inFile = new FileInputStream("prueba.key");
+			FileInputStream inFile = new FileInputStream("practica4.key");
 			int numBytes = inFile.available();
 			byte[] bytes = new byte[numBytes];
 			inFile.read(bytes);
@@ -135,7 +139,10 @@ public class DigitalSignature {
 		
 		return pkr;
 	}
-
+	
+	/*
+	 * Method to sign a file with a signature
+	 */
 	public void sign(File file, String alg) throws Exception {
 		
 		// Get streams
@@ -172,7 +179,10 @@ public class DigitalSignature {
 		inFile.close();
 		outFile.close();
 	}
-
+	
+	/*
+	 * Method to verify a file signature
+	 */
 	public boolean verifySign(File file) throws Exception {
 
 		boolean verified = false;
@@ -201,6 +211,7 @@ public class DigitalSignature {
 		
 		// Verify the sign
 		verified = dsa.verify(sig);
+		
 		if (verified) {
 			inFile.close();
 			inFile = new FileInputStream(file.getAbsolutePath());
@@ -211,12 +222,16 @@ public class DigitalSignature {
 				outFile.write(block);
 			}
 			outFile.close();
-			inFile.close();
 		}
-
+		
+		inFile.close();
 		return verified;
 	}
 
+	/*
+	 * Method to cipher a file with a key
+	 * The output is a file with extension .cif
+	 */
 	public void keyCipher(File file) throws Exception {
 
 		byte[] data = new byte[] {0x7d, 0x60, 0x43, 0x5f, 0x02, 0x09, 0x0f, 0x0a};
@@ -248,7 +263,11 @@ public class DigitalSignature {
 		outFile.close();
 		inFile.close();
 	}
-
+	
+	/*
+	 * Method to decipher a file with a key
+	 * The output is a file with extension .cla
+	 */
 	public void keyDecipher(File file) throws Exception {
 
 		// Get streams
@@ -274,5 +293,8 @@ public class DigitalSignature {
 		
 		outFile.close();
 		inFile.close();
+
 	}
+	
+	
 }
