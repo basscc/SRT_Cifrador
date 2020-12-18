@@ -11,10 +11,16 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+import java.util.Enumeration;
+
 import javax.crypto.Cipher;
 import utils.Header;
 import utils.Options;
@@ -25,6 +31,8 @@ class Keys implements Serializable {
 	// Variables
 	private PublicKey pku;
 	private PrivateKey pkr;
+
+	private String alias; // keyStorage
 
 	// Methods
 	public void setPublicKey(PublicKey pku2) {
@@ -42,15 +50,22 @@ class Keys implements Serializable {
 	public PrivateKey getPrivateKey() {
 		return this.pkr;
 	}
+
+	public void setAlias(String alias) {
+		this.alias = alias;
+	}
+
+	public String getAlias() {
+		return this.alias;
+	}
 }
 
 public class DigitalSignature {
-	
-	static byte[] salt = new byte[] {0x53, 0x45, 0x43, 0x52, 0x45, 0x54, 0x4f, 0x53};
-	
+
+	static byte[] salt = new byte[] { 0x53, 0x45, 0x43, 0x52, 0x45, 0x54, 0x4f, 0x53 };
+
 	/*
-	 * Method to generate a key ring for later use
-	 * in digital signature
+	 * Method to generate a key ring for later use in digital signature
 	 */
 	public void keyGeneration() throws NoSuchAlgorithmException, IOException {
 
@@ -59,7 +74,7 @@ public class DigitalSignature {
 
 		// Initialize the generator
 		kpg.initialize(512);
-		
+
 		// Generate a key pair
 		KeyPair keyPair = kpg.generateKeyPair();
 
@@ -82,14 +97,14 @@ public class DigitalSignature {
 		// Generate output file
 		FileOutputStream outFile = new FileOutputStream("practica4.key");
 		outFile.write(bytes);
-		
+
 		outFile.close();
 	}
 
 	public PublicKey getPublicKey() {
-		
+
 		PublicKey pku = null;
-		
+
 		try {
 			// Get file stream
 			FileInputStream inFile = new FileInputStream("practica4.key");
@@ -109,14 +124,14 @@ public class DigitalSignature {
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
-		
+
 		return pku;
 	}
 
 	public PrivateKey getPrivateKey() {
-		
+
 		PrivateKey pkr = null;
-		
+
 		try {
 			// Get file stream
 			FileInputStream inFile = new FileInputStream("practica4.key");
@@ -136,15 +151,15 @@ public class DigitalSignature {
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
-		
+
 		return pkr;
 	}
-	
+
 	/*
 	 * Method to sign a file with a signature
 	 */
 	public void sign(File file, String alg) throws Exception {
-		
+
 		// Get streams
 		FileInputStream inFile = new FileInputStream(file.getAbsolutePath());
 		FileOutputStream outFile = new FileOutputStream(
@@ -152,16 +167,16 @@ public class DigitalSignature {
 
 		// Get the instance of the object
 		Signature dsa = Signature.getInstance(alg);
-		
+
 		// Sign with private key
 		dsa.initSign(getPrivateKey());
-		
+
 		// Process the information
 		byte[] block = new byte[1];
 		while (inFile.read(block) != -1) {
 			dsa.update(block);
 		}
-		
+
 		// Get the sign
 		byte[] sig = dsa.sign();
 
@@ -175,18 +190,18 @@ public class DigitalSignature {
 		while (inFile.read(block) != -1) {
 			outFile.write(block);
 		}
-		
+
 		inFile.close();
 		outFile.close();
 	}
-	
+
 	/*
 	 * Method to verify a file signature
 	 */
 	public boolean verifySign(File file) throws Exception {
 
 		boolean verified = false;
-		
+
 		// Get file stream
 		FileInputStream inFile = new FileInputStream(file.getAbsolutePath());
 
@@ -196,22 +211,22 @@ public class DigitalSignature {
 
 		// Getting instance of the object
 		Signature dsa = Signature.getInstance(header.getAlgorithm2());
-		
+
 		// Initiation to verify with public key
 		dsa.initVerify(getPublicKey());
-		
+
 		// Process the information
 		byte[] block = new byte[1];
 		while (inFile.read(block) != -1) {
 			dsa.update(block);
 		}
-		
+
 		// Get the signature from the header
 		byte[] sig = header.getData();
-		
+
 		// Verify the sign
 		verified = dsa.verify(sig);
-		
+
 		if (verified) {
 			inFile.close();
 			inFile = new FileInputStream(file.getAbsolutePath());
@@ -223,18 +238,17 @@ public class DigitalSignature {
 			}
 			outFile.close();
 		}
-		
+
 		inFile.close();
 		return verified;
 	}
 
 	/*
-	 * Method to cipher a file with a key
-	 * The output is a file with extension .cif
+	 * Method to cipher a file with a key The output is a file with extension .cif
 	 */
 	public void keyCipher(File file) throws Exception {
 
-		byte[] data = new byte[] {0x7d, 0x60, 0x43, 0x5f, 0x02, 0x09, 0x0f, 0x0a};
+		byte[] data = new byte[] { 0x7d, 0x60, 0x43, 0x5f, 0x02, 0x09, 0x0f, 0x0a };
 
 		String alg1 = "RSA/ECB/PKCS1Padding";
 		String alg2 = "none";
@@ -250,7 +264,7 @@ public class DigitalSignature {
 
 		Header header = new Header(Options.OP_PUBLIC_CIPHER, alg1, alg2, data);
 		header.save(outFile);
-		
+
 		// Cipher each block
 		int blockSize = 53;
 		byte[] block = new byte[blockSize];
@@ -263,10 +277,9 @@ public class DigitalSignature {
 		outFile.close();
 		inFile.close();
 	}
-	
+
 	/*
-	 * Method to decipher a file with a key
-	 * The output is a file with extension .cla
+	 * Method to decipher a file with a key The output is a file with extension .cla
 	 */
 	public void keyDecipher(File file) throws Exception {
 
@@ -290,11 +303,93 @@ public class DigitalSignature {
 			byte out[] = c.doFinal(block);
 			outFile.write(out);
 		}
-		
+
 		outFile.close();
 		inFile.close();
 
 	}
-	
-	
+
+	// TODO:
+	static Keys[] keyStorage = new Keys[100]; // Vector para guardar las llaves
+
+	// Metodos set y get para modificar y obtener el almacen de llaves
+	public static void setKeyStorage(Keys[] almacenAux) {
+		keyStorage = almacenAux;
+	}
+
+	public Keys[] getKeyStorage() {
+		return this.keyStorage;
+	}
+
+	public static Keys elegirLlave(Keys[] almacenLlaves, int i) {
+		return almacenLlaves[i]; // Devuelve la llave que se encuentra en la posicion pasada por parametro
+	}
+
+	public static Keys[] obtencionLlavesAlmacen(File ficheroMiks, String passwordAlmacen) throws KeyStoreException,
+			NoSuchAlgorithmException, CertificateException, IOException, UnrecoverableKeyException {
+
+		// Se lee del almacen de claves, cuidado necesita la contraseña:
+		KeyStore keyStore;
+		keyStore = KeyStore.getInstance("JKS");
+
+		FileInputStream almacen = new FileInputStream(ficheroMiks.getAbsolutePath());
+
+		char[] passworAlmacen = passwordAlmacen.toCharArray(); // contraseña del almacen
+		keyStore.load(almacen, passworAlmacen);
+
+		Keys[] llavesAlmacen = new Keys[100];
+
+		int cont = 0;
+		Enumeration enumAlias = keyStore.aliases();
+		String alias;
+		while (enumAlias.hasMoreElements()) {
+			alias = (String) enumAlias.nextElement();
+			if (keyStore.isKeyEntry(alias)) {
+				PrivateKey privateKey = (PrivateKey) keyStore.getKey(alias, passworAlmacen); // Clave privada del
+																								// almacen
+				java.security.cert.Certificate cert = keyStore.getCertificate(alias);
+				PublicKey publicKey = cert.getPublicKey(); // clave publica del almacen
+
+				Keys llave = new Keys();
+				llave.setPublicKey(publicKey);
+				llave.setPrivateKey(privateKey);
+				llavesAlmacen[cont] = new Keys();
+				llavesAlmacen[cont].setAlias(alias);
+				llavesAlmacen[cont].setPublicKey(llave.getPublicKey());
+				llavesAlmacen[cont].setPrivateKey(llave.getPrivateKey());
+				// System.out.println(alias.toString());
+				cont++;
+			}
+
+			setKeyStorage(llavesAlmacen);
+
+		}
+		return llavesAlmacen;
+	}
+
+	public static void importKeys(File ficheroMiks, String password, int pos)
+			throws UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
+
+		try {
+			// LLaves del almacen
+			Keys[] AlmacenLLaves = obtencionLlavesAlmacen(ficheroMiks, password);
+			// LLave segun la posicion indicada
+			Keys llaveSeleccionada = elegirLlave(AlmacenLLaves, pos);
+			// Escritura de llave en el fichero prueba.key
+			ByteArrayOutputStream bs = new ByteArrayOutputStream();
+			ObjectOutputStream os = new ObjectOutputStream(bs);
+			os.writeObject(llaveSeleccionada);
+			os.close();
+			byte[] bytes = bs.toByteArray();
+			FileOutputStream ficheroSalida = new FileOutputStream("practica5.key");
+			ficheroSalida.write(bytes);
+			ficheroSalida.close();
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
 }

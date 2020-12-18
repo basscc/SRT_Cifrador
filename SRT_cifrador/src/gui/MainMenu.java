@@ -269,6 +269,24 @@ public class MainMenu extends JFrame {
 	 */
 	private void keyGeneration(ActionEvent event) {
 
+		//TODO: crear boton extra
+		/*
+		File F = new File("miks");
+		String password;
+		System.out.println("Introduzca la password para acceder al almacén de claves y realizar operaciones:  ");
+		password=lec.readLine();
+		Llaves[] almacenLLaves = obtencionLlavesAlmacen(F, password);
+		int i;
+		System.out.println("El almacen de claves contiene la siguiente información, seleccione la clave que desea importar: ");
+		for(i=0;i<almacenLLaves.length; i++) {
+			Llaves a=elegirLlave(almacenLLaves, i);
+			if(a!=null) {
+				System.out.println(i+" : "+almacenLLaves[i].getAlias());
+			}
+		}
+		tec=lec.readLine();
+		importarClaves(F,password, Integer.parseInt(tec));
+		*/
 		try {
 			ds.keyGeneration();
 			areKeysGenerated = true;
