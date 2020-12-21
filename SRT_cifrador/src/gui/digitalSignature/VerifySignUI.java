@@ -187,7 +187,6 @@ public class VerifySignUI extends JDialog {
 			try {
 				ds.verifySign(rootPath);
 			} catch (Exception e) {
-				e.printStackTrace();
 				opSuccessfull=false;
 			}
 

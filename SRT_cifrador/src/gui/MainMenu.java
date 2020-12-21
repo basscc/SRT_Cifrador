@@ -5,18 +5,25 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
 import functions.DigitalSignature;
+import functions.KeyStorage;
 import gui.digitalSignature.*;
 import gui.encrypt_decrypt.*;
 import gui.hashing.*;
@@ -36,12 +43,13 @@ public class MainMenu extends JFrame {
 	 */
 	private static final long serialVersionUID = -6311365754074042278L;
 
-	private static final Dimension MIN_SIZE = new Dimension(360, 300);
-	private static final Dimension DEFAULT_SIZE = new Dimension(440, 350);
+	private static final Dimension MIN_SIZE = new Dimension(360, 330);
+	private static final Dimension DEFAULT_SIZE = new Dimension(440, 380);
 
 	private boolean areKeysGenerated;
 
 	private DigitalSignature ds;
+	private KeyStorage ks;
 
 	private JLabel welcomeLabel;
 	private JLabel dsLabel;
@@ -56,19 +64,23 @@ public class MainMenu extends JFrame {
 	private JButton keyCiphButton;
 	private JButton keyDeCiphButton;
 	private JButton genKeys;
+	
+	private JButton keyStorageButton;
+	private JPasswordField passwordField;
 
 	/*
 	 * Initiate GUI components
 	 */
 	private void initComponents() {
 
-		if (new File("practica4.key").exists()) {
+		if (new File("practica5.key").exists()) {
 			areKeysGenerated = true;
 		} else {
 			areKeysGenerated = false;
 		}
 		
 		ds = new DigitalSignature();
+		ks = new KeyStorage();
 
 		welcomeLabel = new JLabel();
 		dsLabel = new JLabel();
@@ -82,6 +94,9 @@ public class MainMenu extends JFrame {
 		keyCiphButton = new JButton();
 		keyDeCiphButton = new JButton();
 		genKeys = new JButton();
+		
+		keyStorageButton = new JButton();
+		passwordField = new JPasswordField();
 
 		welcomeLabel.setText("<html>Bienvenido a la herramienta de SRT<br/><br/>¿Qué operación desea realizar?</html>");
 		welcomeLabel.setFont(new Font("", Font.ITALIC, 14));
@@ -97,6 +112,8 @@ public class MainMenu extends JFrame {
 		keyCiphButton.setText("Cifrar con clave");
 		keyDeCiphButton.setText("Descifrar con clave");
 		genKeys.setText("Generar claves");
+		
+		keyStorageButton.setText("Almacen de claves");
 
 		welcomeLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		dsLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -109,6 +126,9 @@ public class MainMenu extends JFrame {
 		keyCiphButton.setFocusable(false);
 		keyDeCiphButton.setFocusable(false);
 		genKeys.setFocusable(false);
+		keyStorageButton.setFocusable(false);
+		
+		passwordField.setEchoChar('*'); // Type * as the user writes in the component
 
 		encryptButton.addActionListener(this::encryptionUI);
 		decryptButton.addActionListener(this::decryptionUI);
@@ -120,6 +140,8 @@ public class MainMenu extends JFrame {
 		keyCiphButton.addActionListener(this::keyCipheUI);
 		keyDeCiphButton.addActionListener(this::decipheUI);
 		genKeys.addActionListener(this::keyGeneration);
+		
+		keyStorageButton.addActionListener(this::keyStorageGen);
 	}
 
 	/*
@@ -132,7 +154,7 @@ public class MainMenu extends JFrame {
 		// Horizontal groups
 		layout.setHorizontalGroup(layout.createSequentialGroup().addContainerGap().addGroup(layout
 				.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(welcomeLabel).addComponent(dsLabel)
-				.addComponent(genKeys)
+				.addComponent(genKeys).addComponent(keyStorageButton)
 				.addGroup(layout.createSequentialGroup()
 						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(encryptButton)
 								.addComponent(decryptButton).addComponent(signButton).addComponent(verifySignButton))
@@ -155,11 +177,13 @@ public class MainMenu extends JFrame {
 										.addComponent(signButton).addComponent(keyCiphButton))
 								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 										.addComponent(verifySignButton).addComponent(keyDeCiphButton))))
-				.addComponent(genKeys));
+				.addComponent(genKeys)
+				.addPreferredGap(ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, 15)
+				.addComponent(keyStorageButton));
 
 		// Link size of buttons
 		layout.linkSize(SwingConstants.HORIZONTAL, encryptButton, decryptButton, hashButton, verifyHashButton,
-				signButton, verifySignButton, keyCiphButton, keyDeCiphButton, genKeys);
+				signButton, verifySignButton, keyCiphButton, keyDeCiphButton, genKeys, keyStorageButton);
 	}
 
 	/*
@@ -282,6 +306,66 @@ public class MainMenu extends JFrame {
 			JOptionPane.showMessageDialog(this, "No se han generado las claves.", "ERROR", JOptionPane.ERROR_MESSAGE);
 		}
 
+	}
+	
+	/*
+	 * Initialize key storage
+	 * Generate key file from selected key in key storage
+	 */
+	private void keyStorageGen(ActionEvent event) {
+		
+		String password;
+		
+		// Create popup window
+		JLabel labelch= new JLabel("Seleccione archivo para el almacen de claves:");
+		JFileChooser chooser = new JFileChooser();
+		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		JLabel labelpw = new JLabel("Introduzca su contraseña:");
+		JPasswordField jpf = new JPasswordField();
+		JOptionPane.showConfirmDialog(null, new Object[] {labelch, chooser, labelpw, jpf}, "Almacen de claves", JOptionPane.OK_CANCEL_OPTION);
+		
+		// Read the password provided by the user
+		password = String.valueOf(jpf.getPassword());
+		
+		// Read the file
+		File inFile = chooser.getSelectedFile();
+		System.out.println("Fichero seleccionado : " + chooser.getSelectedFile().getAbsolutePath() + "\n");
+		
+		// Generate the key storage with file and password
+		try {
+			ks = new KeyStorage(inFile, password);
+			
+			ks.showKeys();
+			
+			// Create popup window
+			JLabel label2 = new JLabel("Selecciona una clave de las mostradas por consola:");
+			JTextField jtf = new JTextField();
+			JOptionPane.showConfirmDialog(null, new Object[] {label2, jtf}, "Seleccionar una clave", JOptionPane.OK_CANCEL_OPTION);
+			
+			try {
+				int selectedKey = Integer.parseInt(jtf.getText());
+				
+				try {
+					ks.exportKey(selectedKey);
+					areKeysGenerated = true;
+				// Catch error during file generation
+				} catch (UnrecoverableKeyException | KeyStoreException | NoSuchAlgorithmException | CertificateException e) {
+					JOptionPane.showMessageDialog(this, "No se ha podido generar el fichero de clave practica5.", "ERROR", JOptionPane.ERROR_MESSAGE);
+				// Catch selected key does not exist
+				} catch (NullPointerException b) {
+					JOptionPane.showMessageDialog(this, "La clave seleccionada no existe en el almacen.", "ERROR", JOptionPane.ERROR_MESSAGE);
+				}
+			
+		    // Catch input not a number
+			} catch (NumberFormatException e) {
+				JOptionPane.showMessageDialog(this, "No se ha reconocido el parametro introducido como un número válido.", "ERROR", JOptionPane.ERROR_MESSAGE);
+			}
+		
+		// Catch wrong password
+		} catch (UnrecoverableKeyException | KeyStoreException | NoSuchAlgorithmException | CertificateException
+				| IOException e) {
+			JOptionPane.showMessageDialog(this, "La contraseña es incorrecta.", "ERROR", JOptionPane.ERROR_MESSAGE);
+		}	
 	}
 
 	public MainMenu() {

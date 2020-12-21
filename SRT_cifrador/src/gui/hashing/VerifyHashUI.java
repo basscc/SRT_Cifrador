@@ -1,4 +1,5 @@
 package gui.hashing;
+
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.File;

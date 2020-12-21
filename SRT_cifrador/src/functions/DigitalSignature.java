@@ -15,6 +15,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
+
 import javax.crypto.Cipher;
 import utils.Header;
 import utils.Options;
@@ -25,32 +26,40 @@ class Keys implements Serializable {
 	// Variables
 	private PublicKey pku;
 	private PrivateKey pkr;
+	private String alias; // For key storage
 
 	// Methods
-	public void setPublicKey(PublicKey pku2) {
-		this.pku = pku2;
+	public void setPublicKey(PublicKey pku) {
+		this.pku = pku;
 	}
 
 	public PublicKey getPublicKey() {
 		return this.pku;
 	}
 
-	public void setPrivateKey(PrivateKey pkr2) {
-		this.pkr = pkr2;
+	public void setPrivateKey(PrivateKey pkr) {
+		this.pkr = pkr;
 	}
 
 	public PrivateKey getPrivateKey() {
 		return this.pkr;
 	}
+
+	public void setAlias(String alias) {
+		this.alias = alias;
+	}
+
+	public String getAlias() {
+		return this.alias;
+	}
 }
 
 public class DigitalSignature {
-	
-	static byte[] salt = new byte[] {0x53, 0x45, 0x43, 0x52, 0x45, 0x54, 0x4f, 0x53};
-	
+
+	static byte[] salt = new byte[] { 0x53, 0x45, 0x43, 0x52, 0x45, 0x54, 0x4f, 0x53 };
+
 	/*
-	 * Method to generate a key ring for later use
-	 * in digital signature
+	 * Method to generate a key ring for later use in digital signature
 	 */
 	public void keyGeneration() throws NoSuchAlgorithmException, IOException {
 
@@ -59,7 +68,7 @@ public class DigitalSignature {
 
 		// Initialize the generator
 		kpg.initialize(512);
-		
+
 		// Generate a key pair
 		KeyPair keyPair = kpg.generateKeyPair();
 
@@ -80,19 +89,19 @@ public class DigitalSignature {
 		byte[] bytes = bs.toByteArray();
 
 		// Generate output file
-		FileOutputStream outFile = new FileOutputStream("practica4.key");
+		FileOutputStream outFile = new FileOutputStream("practica5.key");
 		outFile.write(bytes);
-		
+
 		outFile.close();
 	}
 
 	public PublicKey getPublicKey() {
-		
+
 		PublicKey pku = null;
-		
+
 		try {
 			// Get file stream
-			FileInputStream inFile = new FileInputStream("practica4.key");
+			FileInputStream inFile = new FileInputStream("practica5.key");
 			int numBytes = inFile.available();
 			byte[] bytes = new byte[numBytes];
 			inFile.read(bytes);
@@ -109,17 +118,17 @@ public class DigitalSignature {
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
-		
+
 		return pku;
 	}
 
 	public PrivateKey getPrivateKey() {
-		
+
 		PrivateKey pkr = null;
-		
+
 		try {
 			// Get file stream
-			FileInputStream inFile = new FileInputStream("practica4.key");
+			FileInputStream inFile = new FileInputStream("practica5.key");
 			int numBytes = inFile.available();
 			byte[] bytes = new byte[numBytes];
 			inFile.read(bytes);
@@ -136,15 +145,15 @@ public class DigitalSignature {
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
-		
+
 		return pkr;
 	}
-	
+
 	/*
 	 * Method to sign a file with a signature
 	 */
 	public void sign(File file, String alg) throws Exception {
-		
+
 		// Get streams
 		FileInputStream inFile = new FileInputStream(file.getAbsolutePath());
 		FileOutputStream outFile = new FileOutputStream(
@@ -152,16 +161,16 @@ public class DigitalSignature {
 
 		// Get the instance of the object
 		Signature dsa = Signature.getInstance(alg);
-		
+
 		// Sign with private key
 		dsa.initSign(getPrivateKey());
-		
+
 		// Process the information
 		byte[] block = new byte[1];
 		while (inFile.read(block) != -1) {
 			dsa.update(block);
 		}
-		
+
 		// Get the sign
 		byte[] sig = dsa.sign();
 
@@ -175,18 +184,18 @@ public class DigitalSignature {
 		while (inFile.read(block) != -1) {
 			outFile.write(block);
 		}
-		
+
 		inFile.close();
 		outFile.close();
 	}
-	
+
 	/*
 	 * Method to verify a file signature
 	 */
 	public boolean verifySign(File file) throws Exception {
 
 		boolean verified = false;
-		
+
 		// Get file stream
 		FileInputStream inFile = new FileInputStream(file.getAbsolutePath());
 
@@ -196,22 +205,22 @@ public class DigitalSignature {
 
 		// Getting instance of the object
 		Signature dsa = Signature.getInstance(header.getAlgorithm2());
-		
+
 		// Initiation to verify with public key
 		dsa.initVerify(getPublicKey());
-		
+
 		// Process the information
 		byte[] block = new byte[1];
 		while (inFile.read(block) != -1) {
 			dsa.update(block);
 		}
-		
+
 		// Get the signature from the header
 		byte[] sig = header.getData();
-		
+
 		// Verify the sign
 		verified = dsa.verify(sig);
-		
+
 		if (verified) {
 			inFile.close();
 			inFile = new FileInputStream(file.getAbsolutePath());
@@ -223,18 +232,20 @@ public class DigitalSignature {
 			}
 			outFile.close();
 		}
-		
+		else {
+			throw new Exception("Firma no verificada, no coincide");
+		}
+
 		inFile.close();
 		return verified;
 	}
 
 	/*
-	 * Method to cipher a file with a key
-	 * The output is a file with extension .cif
+	 * Method to cipher a file with a key The output is a file with extension .cif
 	 */
 	public void keyCipher(File file) throws Exception {
 
-		byte[] data = new byte[] {0x7d, 0x60, 0x43, 0x5f, 0x02, 0x09, 0x0f, 0x0a};
+		byte[] data = new byte[] { 0x7d, 0x60, 0x43, 0x5f, 0x02, 0x09, 0x0f, 0x0a };
 
 		String alg1 = "RSA/ECB/PKCS1Padding";
 		String alg2 = "none";
@@ -250,7 +261,7 @@ public class DigitalSignature {
 
 		Header header = new Header(Options.OP_PUBLIC_CIPHER, alg1, alg2, data);
 		header.save(outFile);
-		
+
 		// Cipher each block
 		int blockSize = 53;
 		byte[] block = new byte[blockSize];
@@ -263,10 +274,9 @@ public class DigitalSignature {
 		outFile.close();
 		inFile.close();
 	}
-	
+
 	/*
-	 * Method to decipher a file with a key
-	 * The output is a file with extension .cla
+	 * Method to decipher a file with a key The output is a file with extension .cla
 	 */
 	public void keyDecipher(File file) throws Exception {
 
@@ -285,16 +295,20 @@ public class DigitalSignature {
 
 		// Decipher each block
 		int blockSize = 64;
+		int messageBytes = 0;
 		byte[] block = new byte[blockSize];
 		while ((inFile.read(block)) != -1) {
+			
+			messageBytes = 0;	
 			byte out[] = c.doFinal(block);
-			outFile.write(out);
+			while (out[messageBytes] != '\0') {
+				messageBytes++;
+			}
+			
+			outFile.write(out, 0, messageBytes);
 		}
-		
+
 		outFile.close();
 		inFile.close();
-
 	}
-	
-	
 }
