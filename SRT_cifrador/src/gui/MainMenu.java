@@ -12,6 +12,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPasswordField;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 import javax.swing.LayoutStyle.ComponentPlacement;
@@ -56,6 +57,9 @@ public class MainMenu extends JFrame {
 	private JButton keyCiphButton;
 	private JButton keyDeCiphButton;
 	private JButton genKeys;
+	
+	private JButton ks;
+	private JPasswordField passwordField;
 
 	/*
 	 * Initiate GUI components
@@ -82,6 +86,9 @@ public class MainMenu extends JFrame {
 		keyCiphButton = new JButton();
 		keyDeCiphButton = new JButton();
 		genKeys = new JButton();
+		
+		ks = new JButton();
+		passwordField = new JPasswordField();
 
 		welcomeLabel.setText("<html>Bienvenido a la herramienta de SRT<br/><br/>¿Qué operación desea realizar?</html>");
 		welcomeLabel.setFont(new Font("", Font.ITALIC, 14));
@@ -97,6 +104,8 @@ public class MainMenu extends JFrame {
 		keyCiphButton.setText("Cifrar con clave");
 		keyDeCiphButton.setText("Descifrar con clave");
 		genKeys.setText("Generar claves");
+		
+		ks.setText("Almacen de claves");
 
 		welcomeLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		dsLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -109,6 +118,9 @@ public class MainMenu extends JFrame {
 		keyCiphButton.setFocusable(false);
 		keyDeCiphButton.setFocusable(false);
 		genKeys.setFocusable(false);
+		ks.setFocusable(false);
+		
+		passwordField.setEchoChar('*'); // Type * as the user writes in the component
 
 		encryptButton.addActionListener(this::encryptionUI);
 		decryptButton.addActionListener(this::decryptionUI);
@@ -120,6 +132,8 @@ public class MainMenu extends JFrame {
 		keyCiphButton.addActionListener(this::keyCipheUI);
 		keyDeCiphButton.addActionListener(this::decipheUI);
 		genKeys.addActionListener(this::keyGeneration);
+		
+		ks.addActionListener(this::ksGeneration);
 	}
 
 	/*
@@ -132,7 +146,7 @@ public class MainMenu extends JFrame {
 		// Horizontal groups
 		layout.setHorizontalGroup(layout.createSequentialGroup().addContainerGap().addGroup(layout
 				.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(welcomeLabel).addComponent(dsLabel)
-				.addComponent(genKeys)
+				.addComponent(genKeys).addComponent(ks)
 				.addGroup(layout.createSequentialGroup()
 						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(encryptButton)
 								.addComponent(decryptButton).addComponent(signButton).addComponent(verifySignButton))
@@ -155,7 +169,8 @@ public class MainMenu extends JFrame {
 										.addComponent(signButton).addComponent(keyCiphButton))
 								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 										.addComponent(verifySignButton).addComponent(keyDeCiphButton))))
-				.addComponent(genKeys));
+				.addComponent(genKeys)
+				.addComponent(ks));
 
 		// Link size of buttons
 		layout.linkSize(SwingConstants.HORIZONTAL, encryptButton, decryptButton, hashButton, verifyHashButton,
@@ -269,24 +284,6 @@ public class MainMenu extends JFrame {
 	 */
 	private void keyGeneration(ActionEvent event) {
 
-		//TODO: crear boton extra
-		/*
-		File F = new File("miks");
-		String password;
-		System.out.println("Introduzca la password para acceder al almacén de claves y realizar operaciones:  ");
-		password=lec.readLine();
-		Llaves[] almacenLLaves = obtencionLlavesAlmacen(F, password);
-		int i;
-		System.out.println("El almacen de claves contiene la siguiente información, seleccione la clave que desea importar: ");
-		for(i=0;i<almacenLLaves.length; i++) {
-			Llaves a=elegirLlave(almacenLLaves, i);
-			if(a!=null) {
-				System.out.println(i+" : "+almacenLLaves[i].getAlias());
-			}
-		}
-		tec=lec.readLine();
-		importarClaves(F,password, Integer.parseInt(tec));
-		*/
 		try {
 			ds.keyGeneration();
 			areKeysGenerated = true;
@@ -299,6 +296,32 @@ public class MainMenu extends JFrame {
 		} else {
 			JOptionPane.showMessageDialog(this, "No se han generado las claves.", "ERROR", JOptionPane.ERROR_MESSAGE);
 		}
+
+	}
+	
+	/*
+	 * Attempt to generate keys from key storage for digital signature
+	 */
+	private void ksGeneration(ActionEvent event) {
+
+		//TODO: crear ventana emergente con passwordfield para ingresar la contraseña
+		/*
+		File inFile = new File("miks");
+		String password;
+		System.out.println("Introduzca la password para acceder al almacén de claves y realizar operaciones:  ");
+		password=lec.readLine();
+		Keys[] keyStorage = keyStorage(inFile, password);
+		int i;
+		System.out.println("El almacen de claves contiene la siguiente información, seleccione la clave que desea importar: ");
+		for(i=0;i<almacenLLaves.length; i++) {
+			Keys a=elegirLlave(almacenLLaves, i);
+			if(a!=null) {
+				System.out.println(i+" : "+almacenLLaves[i].getAlias());
+			}
+		}
+		tec=lec.readLine();
+		importarClaves(F,password, Integer.parseInt(tec));
+		*/
 
 	}
 

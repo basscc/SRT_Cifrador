@@ -32,6 +32,7 @@ class Keys implements Serializable {
 	private PublicKey pku;
 	private PrivateKey pkr;
 
+	//TODO:
 	private String alias; // keyStorage
 
 	// Methods
@@ -309,35 +310,35 @@ public class DigitalSignature {
 
 	}
 
-	// TODO:
-	static Keys[] keyStorage = new Keys[100]; // Vector para guardar las llaves
+	//TODO:
+	// Practice 5
+	static Keys[] keyStorage = new Keys[100];
 
-	// Metodos set y get para modificar y obtener el almacen de llaves
-	public static void setKeyStorage(Keys[] almacenAux) {
-		keyStorage = almacenAux;
+	public static void setKeyStorage(Keys[] ks) {
+		keyStorage = ks;
 	}
 
 	public Keys[] getKeyStorage() {
 		return this.keyStorage;
 	}
 
-	public static Keys elegirLlave(Keys[] almacenLlaves, int i) {
-		return almacenLlaves[i]; // Devuelve la llave que se encuentra en la posicion pasada por parametro
+	public static Keys chooseKey(Keys[] keyStorage, int i) {
+		return keyStorage[i]; // Returns the key of position i
 	}
 
-	public static Keys[] obtencionLlavesAlmacen(File ficheroMiks, String passwordAlmacen) throws KeyStoreException,
+	public static Keys[] keyStorage(File miksFile, String pwKs) throws KeyStoreException,
 			NoSuchAlgorithmException, CertificateException, IOException, UnrecoverableKeyException {
 
-		// Se lee del almacen de claves, cuidado necesita la contraseña:
+		// Read key storage, it needs password
+		
 		KeyStore keyStore;
 		keyStore = KeyStore.getInstance("JKS");
+		
+		FileInputStream ks = new FileInputStream(miksFile.getAbsolutePath());
+		char[] pwks = pwKs.toCharArray(); // contraseña del almacen
+		keyStore.load(ks, pwks);
 
-		FileInputStream almacen = new FileInputStream(ficheroMiks.getAbsolutePath());
-
-		char[] passworAlmacen = passwordAlmacen.toCharArray(); // contraseña del almacen
-		keyStore.load(almacen, passworAlmacen);
-
-		Keys[] llavesAlmacen = new Keys[100];
+		Keys[] keyStorage = new Keys[100];
 
 		int cont = 0;
 		Enumeration enumAlias = keyStore.aliases();
@@ -345,48 +346,43 @@ public class DigitalSignature {
 		while (enumAlias.hasMoreElements()) {
 			alias = (String) enumAlias.nextElement();
 			if (keyStore.isKeyEntry(alias)) {
-				PrivateKey privateKey = (PrivateKey) keyStore.getKey(alias, passworAlmacen); // Clave privada del
-																								// almacen
+				PrivateKey privateKey = (PrivateKey) keyStore.getKey(alias, pwks);
 				java.security.cert.Certificate cert = keyStore.getCertificate(alias);
-				PublicKey publicKey = cert.getPublicKey(); // clave publica del almacen
+				PublicKey publicKey = cert.getPublicKey();
 
-				Keys llave = new Keys();
-				llave.setPublicKey(publicKey);
-				llave.setPrivateKey(privateKey);
-				llavesAlmacen[cont] = new Keys();
-				llavesAlmacen[cont].setAlias(alias);
-				llavesAlmacen[cont].setPublicKey(llave.getPublicKey());
-				llavesAlmacen[cont].setPrivateKey(llave.getPrivateKey());
-				// System.out.println(alias.toString());
+				Keys key = new Keys();
+				key.setPublicKey(publicKey);
+				key.setPrivateKey(privateKey);
+				keyStorage[cont] = new Keys();
+				keyStorage[cont].setAlias(alias);
+				keyStorage[cont].setPublicKey(key.getPublicKey());
+				keyStorage[cont].setPrivateKey(key.getPrivateKey());
+				
 				cont++;
 			}
 
-			setKeyStorage(llavesAlmacen);
+			setKeyStorage(keyStorage);
 
 		}
-		return llavesAlmacen;
+		return keyStorage;
 	}
 
-	public static void importKeys(File ficheroMiks, String password, int pos)
+	public static void importKeys(File miksFile, String password, int pos)
 			throws UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
 
 		try {
-			// LLaves del almacen
-			Keys[] AlmacenLLaves = obtencionLlavesAlmacen(ficheroMiks, password);
-			// LLave segun la posicion indicada
-			Keys llaveSeleccionada = elegirLlave(AlmacenLLaves, pos);
-			// Escritura de llave en el fichero prueba.key
+			Keys[] ks = keyStorage(miksFile, password);
+			Keys chosenKey = chooseKey(ks, pos);
 			ByteArrayOutputStream bs = new ByteArrayOutputStream();
 			ObjectOutputStream os = new ObjectOutputStream(bs);
-			os.writeObject(llaveSeleccionada);
+			os.writeObject(chosenKey);
 			os.close();
 			byte[] bytes = bs.toByteArray();
-			FileOutputStream ficheroSalida = new FileOutputStream("practica5.key");
-			ficheroSalida.write(bytes);
-			ficheroSalida.close();
+			FileOutputStream outFile = new FileOutputStream("practica5.key");
+			outFile.write(bytes);
+			outFile.close();
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
