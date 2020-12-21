@@ -12,10 +12,12 @@ import java.security.cert.CertificateException;
 
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
+import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 import javax.swing.LayoutStyle.ComponentPlacement;
@@ -41,8 +43,8 @@ public class MainMenu extends JFrame {
 	 */
 	private static final long serialVersionUID = -6311365754074042278L;
 
-	private static final Dimension MIN_SIZE = new Dimension(360, 300);
-	private static final Dimension DEFAULT_SIZE = new Dimension(440, 350);
+	private static final Dimension MIN_SIZE = new Dimension(360, 330);
+	private static final Dimension DEFAULT_SIZE = new Dimension(440, 380);
 
 	private boolean areKeysGenerated;
 
@@ -71,7 +73,7 @@ public class MainMenu extends JFrame {
 	 */
 	private void initComponents() {
 
-		if (new File("practica4.key").exists()) {
+		if (new File("practica5.key").exists()) {
 			areKeysGenerated = true;
 		} else {
 			areKeysGenerated = false;
@@ -139,7 +141,7 @@ public class MainMenu extends JFrame {
 		keyDeCiphButton.addActionListener(this::decipheUI);
 		genKeys.addActionListener(this::keyGeneration);
 		
-		keyStorageButton.addActionListener(this::ksGeneration);
+		keyStorageButton.addActionListener(this::keyStorageGen);
 	}
 
 	/*
@@ -176,11 +178,12 @@ public class MainMenu extends JFrame {
 								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 										.addComponent(verifySignButton).addComponent(keyDeCiphButton))))
 				.addComponent(genKeys)
+				.addPreferredGap(ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, 15)
 				.addComponent(keyStorageButton));
 
 		// Link size of buttons
 		layout.linkSize(SwingConstants.HORIZONTAL, encryptButton, decryptButton, hashButton, verifyHashButton,
-				signButton, verifySignButton, keyCiphButton, keyDeCiphButton, genKeys);
+				signButton, verifySignButton, keyCiphButton, keyDeCiphButton, genKeys, keyStorageButton);
 	}
 
 	/*
@@ -306,44 +309,63 @@ public class MainMenu extends JFrame {
 	}
 	
 	/*
-	 * Attempt to generate keys from key storage for digital signature
+	 * Initialize key storage
+	 * Generate key file from selected key in key storage
 	 */
-	private void ksGeneration(ActionEvent event) {
+	private void keyStorageGen(ActionEvent event) {
 		
 		String password;
 		
 		// Create popup window
-		JLabel label = new JLabel("Introduzca su contraseña:");
+		JLabel labelch= new JLabel("Seleccione archivo para el almacen de claves:");
+		JFileChooser chooser = new JFileChooser();
+		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		JLabel labelpw = new JLabel("Introduzca su contraseña:");
 		JPasswordField jpf = new JPasswordField();
-		JOptionPane.showConfirmDialog(null, new Object[] {label, jpf}, "Almacen de claves", JOptionPane.OK_CANCEL_OPTION);
+		JOptionPane.showConfirmDialog(null, new Object[] {labelch, chooser, labelpw, jpf}, "Almacen de claves", JOptionPane.OK_CANCEL_OPTION);
 		
 		// Read the password provided by the user
 		password = String.valueOf(jpf.getPassword());
 		
 		// Read the file
-		File inFile = new File("miks");
+		File inFile = chooser.getSelectedFile();
+		System.out.println("Fichero seleccionado : " + chooser.getSelectedFile().getAbsolutePath() + "\n");
 		
-		// Generate the key storage with previous file and password
+		// Generate the key storage with file and password
 		try {
 			ks = new KeyStorage(inFile, password);
+			
+			ks.showKeys();
+			
+			// Create popup window
+			JLabel label2 = new JLabel("Selecciona una clave de las mostradas por consola:");
+			JTextField jtf = new JTextField();
+			JOptionPane.showConfirmDialog(null, new Object[] {label2, jtf}, "Seleccionar una clave", JOptionPane.OK_CANCEL_OPTION);
+			
+			try {
+				int selectedKey = Integer.parseInt(jtf.getText());
+				
+				try {
+					ks.exportKey(selectedKey);
+					areKeysGenerated = true;
+				// Catch error during file generation
+				} catch (UnrecoverableKeyException | KeyStoreException | NoSuchAlgorithmException | CertificateException e) {
+					JOptionPane.showMessageDialog(this, "No se ha podido generar el fichero de clave practica5.", "ERROR", JOptionPane.ERROR_MESSAGE);
+				// Catch selected key does not exist
+				} catch (NullPointerException b) {
+					JOptionPane.showMessageDialog(this, "La clave seleccionada no existe en el almacen.", "ERROR", JOptionPane.ERROR_MESSAGE);
+				}
+			
+		    // Catch input not a number
+			} catch (NumberFormatException e) {
+				JOptionPane.showMessageDialog(this, "No se ha reconocido el parametro introducido como un número válido.", "ERROR", JOptionPane.ERROR_MESSAGE);
+			}
+		
+		// Catch wrong password
 		} catch (UnrecoverableKeyException | KeyStoreException | NoSuchAlgorithmException | CertificateException
 				| IOException e) {
-			e.printStackTrace();
-			// TODO lanzar dialogo error si hay excepciones
-		}
-		
-		/*
-		int i;
-		System.out.println("El almacen de claves contiene la siguiente información, seleccione la clave que desea importar: ");
-		for(i=0;i<almacenLLaves.length; i++) {
-			Keys a=elegirLlave(almacenLLaves, i);
-			if(a!=null) {
-				System.out.println(i+" : "+almacenLLaves[i].getAlias());
-			}
-		}
-		tec=lec.readLine();
-		importarClaves(F,password, Integer.parseInt(tec));
-		*/
+			JOptionPane.showMessageDialog(this, "La contraseña es incorrecta.", "ERROR", JOptionPane.ERROR_MESSAGE);
+		}	
 	}
 
 	public MainMenu() {

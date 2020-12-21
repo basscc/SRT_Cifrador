@@ -14,6 +14,14 @@ import java.security.PublicKey;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.Enumeration;
+/*
+ * Developed by:
+ * 
+ * Carlos Salguero Sánchez
+ * Javier Tovar Pacheco
+ * 
+ * UNEX - 2020 - SRT
+ */
 
 public class KeyStorage {
 
@@ -21,16 +29,16 @@ public class KeyStorage {
 
 	public KeyStorage() {
 
-		this.keyStorage = new Keys[100];
+		this.keyStorage = new Keys[500];
 	}
 
 	/*
-	 *  Alt constructor with file input
+	 * Alt constructor with file input and password integrity check
 	 */
 	public KeyStorage(File miksFile, String pwKs) throws KeyStoreException, NoSuchAlgorithmException,
 			CertificateException, IOException, UnrecoverableKeyException {
 
-		this.keyStorage = new Keys[100];
+		this.keyStorage = new Keys[500];
 
 		// Get keyStore instance
 		KeyStore keyStore;
@@ -38,28 +46,28 @@ public class KeyStorage {
 
 		// Read file and get password
 		FileInputStream fileIN = new FileInputStream(miksFile.getAbsolutePath());
-		char[] pwks = pwKs.toCharArray(); 
-		
+		char[] pwks = pwKs.toCharArray();
+
 		// Try to load the keyStore with given inputs
 		keyStore.load(fileIN, pwks);
 
 		int cont = 0;
 
-		Enumeration<String> enumAlias = keyStore.aliases();
+		Enumeration<String> e = keyStore.aliases();
 		String alias;
 
-		while (enumAlias.hasMoreElements()) {
+		while (e.hasMoreElements()) {
 
-			alias = (String) enumAlias.nextElement();
+			alias = (String) e.nextElement();
 
 			if (keyStore.isKeyEntry(alias)) {
-				PrivateKey privateKey = (PrivateKey) keyStore.getKey(alias, pwks);
+				PrivateKey pkr = (PrivateKey) keyStore.getKey(alias, pwks);
 				java.security.cert.Certificate cert = keyStore.getCertificate(alias);
-				PublicKey publicKey = cert.getPublicKey();
+				PublicKey pku = cert.getPublicKey();
 
 				Keys key = new Keys();
-				key.setPublicKey(publicKey);
-				key.setPrivateKey(privateKey);
+				key.setPublicKey(pku);
+				key.setPrivateKey(pkr);
 
 				keyStorage[cont] = new Keys();
 				keyStorage[cont].setAlias(alias);
@@ -69,26 +77,29 @@ public class KeyStorage {
 			}
 		}
 	}
-	
-	// TODO : Este metodo, primera linea? que hace o intenta hacer? exportar las claves? entonces para que necesita la chosenKey?
+
 	/*
-	 * Import keys by file?
+	 * Export selected key to file
 	 */
-	public void importKeys(File miksFile, String password, int pos)
-			throws UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
+	public void exportKey(int pos) throws UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException,
+			CertificateException, NullPointerException {
 
 		try {
-			Keys[] ks = keyStorage(miksFile, password);
-			Keys chosenKey = chooseKey(ks, pos);
+			// Select key from storage and transform to byte array
+
+			Keys chosenKey = chooseKey(getKeyStorage(), pos);
 			ByteArrayOutputStream bs = new ByteArrayOutputStream();
 			ObjectOutputStream os = new ObjectOutputStream(bs);
 			os.writeObject(chosenKey);
 			os.close();
-			
 			byte[] bytes = bs.toByteArray();
+
+			// Write key bytes to output file
 			FileOutputStream outFile = new FileOutputStream("practica5.key");
 			outFile.write(bytes);
 			outFile.close();
+
+			System.out.println("Se ha generado el fichero de clave practica5.key \n");
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -98,8 +109,30 @@ public class KeyStorage {
 	/*
 	 * Returns the key at position i
 	 */
-	public Keys chooseKey(Keys[] keyStorage, int i) {
+	public Keys chooseKey(Keys[] keyStorage, int i) throws NullPointerException {
+		if (keyStorage[i] == null)
+			throw new NullPointerException("La clave elegida no existe");
+
 		return keyStorage[i];
+	}
+
+	/*
+	 * Show all stored keys in console
+	 */
+	public void showKeys() {
+
+		Boolean fin = false;
+
+		System.out.println("Mostrando listado de claves\n");
+		
+		for (int i = 0; i < getKeyStorage().length && !fin; i++) {
+			if (keyStorage[i] == null)
+				fin = true;
+
+			if (!fin)
+				System.out.println(i + ". " + keyStorage[i].getAlias() + "\n");
+		}
+
 	}
 
 	public Keys[] getKeyStorage() {

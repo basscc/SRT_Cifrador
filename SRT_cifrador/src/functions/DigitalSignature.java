@@ -11,15 +11,10 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
-import java.util.Enumeration;
 
 import javax.crypto.Cipher;
 import utils.Header;
@@ -31,21 +26,19 @@ class Keys implements Serializable {
 	// Variables
 	private PublicKey pku;
 	private PrivateKey pkr;
-
-	//TODO:
-	private String alias; // keyStorage
+	private String alias; // For key storage
 
 	// Methods
-	public void setPublicKey(PublicKey pku2) {
-		this.pku = pku2;
+	public void setPublicKey(PublicKey pku) {
+		this.pku = pku;
 	}
 
 	public PublicKey getPublicKey() {
 		return this.pku;
 	}
 
-	public void setPrivateKey(PrivateKey pkr2) {
-		this.pkr = pkr2;
+	public void setPrivateKey(PrivateKey pkr) {
+		this.pkr = pkr;
 	}
 
 	public PrivateKey getPrivateKey() {
@@ -96,7 +89,7 @@ public class DigitalSignature {
 		byte[] bytes = bs.toByteArray();
 
 		// Generate output file
-		FileOutputStream outFile = new FileOutputStream("practica4.key");
+		FileOutputStream outFile = new FileOutputStream("practica5.key");
 		outFile.write(bytes);
 
 		outFile.close();
@@ -108,7 +101,7 @@ public class DigitalSignature {
 
 		try {
 			// Get file stream
-			FileInputStream inFile = new FileInputStream("practica4.key");
+			FileInputStream inFile = new FileInputStream("practica5.key");
 			int numBytes = inFile.available();
 			byte[] bytes = new byte[numBytes];
 			inFile.read(bytes);
@@ -135,7 +128,7 @@ public class DigitalSignature {
 
 		try {
 			// Get file stream
-			FileInputStream inFile = new FileInputStream("practica4.key");
+			FileInputStream inFile = new FileInputStream("practica5.key");
 			int numBytes = inFile.available();
 			byte[] bytes = new byte[numBytes];
 			inFile.read(bytes);
@@ -239,6 +232,9 @@ public class DigitalSignature {
 			}
 			outFile.close();
 		}
+		else {
+			throw new Exception("Firma no verificada, no coincide");
+		}
 
 		inFile.close();
 		return verified;
@@ -299,80 +295,20 @@ public class DigitalSignature {
 
 		// Decipher each block
 		int blockSize = 64;
+		int messageBytes = 0;
 		byte[] block = new byte[blockSize];
 		while ((inFile.read(block)) != -1) {
+			
+			messageBytes = 0;	
 			byte out[] = c.doFinal(block);
-			outFile.write(out);
+			while (out[messageBytes] != '\0') {
+				messageBytes++;
+			}
+			
+			outFile.write(out, 0, messageBytes);
 		}
 
 		outFile.close();
 		inFile.close();
-
 	}
-
-	//TODO: Esta en una nueva clase para ahorra esta ñapa de cosas estaticas
-	// Practice 5
-/*
-	public static Keys[] keyStorage(File miksFile, String pwKs) throws KeyStoreException,
-			NoSuchAlgorithmException, CertificateException, IOException, UnrecoverableKeyException {
-
-		// Read key storage, it needs password
-		
-		KeyStore keyStore;
-		keyStore = KeyStore.getInstance("JKS");
-		
-		FileInputStream ks = new FileInputStream(miksFile.getAbsolutePath());
-		char[] pwks = pwKs.toCharArray(); // contraseña del almacen
-		keyStore.load(ks, pwks);
-
-		Keys[] keyStorage = new Keys[100];
-
-		int cont = 0;
-		Enumeration enumAlias = keyStore.aliases();
-		String alias;
-		while (enumAlias.hasMoreElements()) {
-			alias = (String) enumAlias.nextElement();
-			if (keyStore.isKeyEntry(alias)) {
-				PrivateKey privateKey = (PrivateKey) keyStore.getKey(alias, pwks);
-				java.security.cert.Certificate cert = keyStore.getCertificate(alias);
-				PublicKey publicKey = cert.getPublicKey();
-
-				Keys key = new Keys();
-				key.setPublicKey(publicKey);
-				key.setPrivateKey(privateKey);
-				keyStorage[cont] = new Keys();
-				keyStorage[cont].setAlias(alias);
-				keyStorage[cont].setPublicKey(key.getPublicKey());
-				keyStorage[cont].setPrivateKey(key.getPrivateKey());
-				
-				cont++;
-			}
-
-			setKeyStorage(keyStorage);
-
-		}
-		return keyStorage;
-	}
-
-	public static void importKeys(File miksFile, String password, int pos)
-			throws UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
-
-		try {
-			Keys[] ks = keyStorage(miksFile, password);
-			Keys chosenKey = chooseKey(ks, pos);
-			ByteArrayOutputStream bs = new ByteArrayOutputStream();
-			ObjectOutputStream os = new ObjectOutputStream(bs);
-			os.writeObject(chosenKey);
-			os.close();
-			byte[] bytes = bs.toByteArray();
-			FileOutputStream outFile = new FileOutputStream("practica5.key");
-			outFile.write(bytes);
-			outFile.close();
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-	}
-*/
 }
