@@ -310,22 +310,9 @@ public class DigitalSignature {
 
 	}
 
-	//TODO:
+	//TODO: Esta en una nueva clase para ahorra esta ñapa de cosas estaticas
 	// Practice 5
-	static Keys[] keyStorage = new Keys[100];
-
-	public static void setKeyStorage(Keys[] ks) {
-		keyStorage = ks;
-	}
-
-	public Keys[] getKeyStorage() {
-		return this.keyStorage;
-	}
-
-	public static Keys chooseKey(Keys[] keyStorage, int i) {
-		return keyStorage[i]; // Returns the key of position i
-	}
-
+/*
 	public static Keys[] keyStorage(File miksFile, String pwKs) throws KeyStoreException,
 			NoSuchAlgorithmException, CertificateException, IOException, UnrecoverableKeyException {
 
@@ -387,5 +374,5 @@ public class DigitalSignature {
 		}
 
 	}
-
+*/
 }

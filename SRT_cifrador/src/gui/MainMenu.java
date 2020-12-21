@@ -5,7 +5,10 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
@@ -18,6 +21,7 @@ import javax.swing.WindowConstants;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
 import functions.DigitalSignature;
+import functions.KeyStorage;
 import gui.digitalSignature.*;
 import gui.encrypt_decrypt.*;
 import gui.hashing.*;
@@ -43,6 +47,7 @@ public class MainMenu extends JFrame {
 	private boolean areKeysGenerated;
 
 	private DigitalSignature ds;
+	private KeyStorage ks;
 
 	private JLabel welcomeLabel;
 	private JLabel dsLabel;
@@ -58,7 +63,7 @@ public class MainMenu extends JFrame {
 	private JButton keyDeCiphButton;
 	private JButton genKeys;
 	
-	private JButton ks;
+	private JButton keyStorageButton;
 	private JPasswordField passwordField;
 
 	/*
@@ -73,6 +78,7 @@ public class MainMenu extends JFrame {
 		}
 		
 		ds = new DigitalSignature();
+		ks = new KeyStorage();
 
 		welcomeLabel = new JLabel();
 		dsLabel = new JLabel();
@@ -87,7 +93,7 @@ public class MainMenu extends JFrame {
 		keyDeCiphButton = new JButton();
 		genKeys = new JButton();
 		
-		ks = new JButton();
+		keyStorageButton = new JButton();
 		passwordField = new JPasswordField();
 
 		welcomeLabel.setText("<html>Bienvenido a la herramienta de SRT<br/><br/>¿Qué operación desea realizar?</html>");
@@ -105,7 +111,7 @@ public class MainMenu extends JFrame {
 		keyDeCiphButton.setText("Descifrar con clave");
 		genKeys.setText("Generar claves");
 		
-		ks.setText("Almacen de claves");
+		keyStorageButton.setText("Almacen de claves");
 
 		welcomeLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		dsLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -118,7 +124,7 @@ public class MainMenu extends JFrame {
 		keyCiphButton.setFocusable(false);
 		keyDeCiphButton.setFocusable(false);
 		genKeys.setFocusable(false);
-		ks.setFocusable(false);
+		keyStorageButton.setFocusable(false);
 		
 		passwordField.setEchoChar('*'); // Type * as the user writes in the component
 
@@ -133,7 +139,7 @@ public class MainMenu extends JFrame {
 		keyDeCiphButton.addActionListener(this::decipheUI);
 		genKeys.addActionListener(this::keyGeneration);
 		
-		ks.addActionListener(this::ksGeneration);
+		keyStorageButton.addActionListener(this::ksGeneration);
 	}
 
 	/*
@@ -146,7 +152,7 @@ public class MainMenu extends JFrame {
 		// Horizontal groups
 		layout.setHorizontalGroup(layout.createSequentialGroup().addContainerGap().addGroup(layout
 				.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(welcomeLabel).addComponent(dsLabel)
-				.addComponent(genKeys).addComponent(ks)
+				.addComponent(genKeys).addComponent(keyStorageButton)
 				.addGroup(layout.createSequentialGroup()
 						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(encryptButton)
 								.addComponent(decryptButton).addComponent(signButton).addComponent(verifySignButton))
@@ -170,7 +176,7 @@ public class MainMenu extends JFrame {
 								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 										.addComponent(verifySignButton).addComponent(keyDeCiphButton))))
 				.addComponent(genKeys)
-				.addComponent(ks));
+				.addComponent(keyStorageButton));
 
 		// Link size of buttons
 		layout.linkSize(SwingConstants.HORIZONTAL, encryptButton, decryptButton, hashButton, verifyHashButton,
@@ -303,14 +309,30 @@ public class MainMenu extends JFrame {
 	 * Attempt to generate keys from key storage for digital signature
 	 */
 	private void ksGeneration(ActionEvent event) {
-
-		//TODO: crear ventana emergente con passwordfield para ingresar la contraseña
-		/*
-		File inFile = new File("miks");
+		
 		String password;
-		System.out.println("Introduzca la password para acceder al almacén de claves y realizar operaciones:  ");
-		password=lec.readLine();
-		Keys[] keyStorage = keyStorage(inFile, password);
+		
+		// Create popup window
+		JLabel label = new JLabel("Introduzca su contraseña:");
+		JPasswordField jpf = new JPasswordField();
+		JOptionPane.showConfirmDialog(null, new Object[] {label, jpf}, "Almacen de claves", JOptionPane.OK_CANCEL_OPTION);
+		
+		// Read the password provided by the user
+		password = String.valueOf(jpf.getPassword());
+		
+		// Read the file
+		File inFile = new File("miks");
+		
+		// Generate the key storage with previous file and password
+		try {
+			ks = new KeyStorage(inFile, password);
+		} catch (UnrecoverableKeyException | KeyStoreException | NoSuchAlgorithmException | CertificateException
+				| IOException e) {
+			e.printStackTrace();
+			// TODO lanzar dialogo error si hay excepciones
+		}
+		
+		/*
 		int i;
 		System.out.println("El almacen de claves contiene la siguiente información, seleccione la clave que desea importar: ");
 		for(i=0;i<almacenLLaves.length; i++) {
@@ -322,7 +344,6 @@ public class MainMenu extends JFrame {
 		tec=lec.readLine();
 		importarClaves(F,password, Integer.parseInt(tec));
 		*/
-
 	}
 
 	public MainMenu() {
